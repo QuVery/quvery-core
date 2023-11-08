@@ -9,7 +9,7 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 
 # Create file handler and set level to debug
-file_handler = logging.FileHandler('Quvery-Core.log')
+file_handler = logging.FileHandler('quvery-core.log')
 file_handler.setLevel(logging.INFO)
 
 # Create formatter
