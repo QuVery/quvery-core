@@ -1,5 +1,6 @@
 import bpy
-RULE_NAME = "ListAllObjectsRule"
+
+RULE_NAME = "ListAllObjects"
 
 
 def process(input):

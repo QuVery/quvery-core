@@ -76,7 +76,6 @@ def get_rules_path():
 
 
 def check_input(input):
-    logger.info("Checking input: " + input)
     # Now lets read all rules in the rules directory and execute them. rules are separate python files line r01_ruleone.py, r02_ruletwo.py, etc. we need to sort them by name to ensure they are executed in the correct order.
     rules_path = get_rules_path()
     precheck_subdir = os.path.join(rules_path, "1_precheck")
@@ -114,7 +113,7 @@ def process_rules(rules, subdir, input):
         # Execute the process function
         result = module.process(input)
         logger.info("Executing rule: " + rule + " - result: " + str(result))
-        if (result == False):
+        if (result != True):
             logger.error("Rule failed: " + rule)
             error_result.append(result)
     return error_result

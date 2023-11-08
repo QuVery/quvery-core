@@ -2,14 +2,19 @@ import os
 import PyInstaller.__main__
 import shutil
 
+script_name = 'main.py'
+
 PyInstaller.__main__.run([
-    'main.py',
+    # '--clean',
+    # '--hidden-import=bpy.path',
     '--collect-all',
     'bpy',
     '-n',
     'quvery-core',
-    '-y'
+    '-y',
+    script_name
 ])
+
 srcdir = 'rules'
 dstdir = 'dist/QuVery-Core/rules'
 
