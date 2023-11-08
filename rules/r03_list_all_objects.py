@@ -1,4 +1,8 @@
 import bpy
+RULE_NAME = "ListAllObjectsRule"
 
-for obj in bpy.data.objects:
-    print("QUVERY: obj: " + obj.name)
+
+def process(input):
+    for obj in bpy.data.objects:
+        print("ListAllObjectsRule: obj: " + input + " - " + obj.name)
+    return True

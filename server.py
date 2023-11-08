@@ -1,7 +1,9 @@
+import importlib
 import os
 import socket
 import sys
 from utils.logger import logger
+import importlib.util
 
 # Configuration variables
 host = '127.0.0.1'  # Localhost - ensures no remote access is allowed
@@ -46,7 +48,7 @@ def start_server():
                     if command == 'exit':
                         logger.info(
                             "Exit command received. Shutting down server.")
-                        exit()
+                        sys.exit()
                     else:
                         # dispatch an event to notify main.py that a command has been received
                         logger.info("Command received: {}".format(command))
@@ -80,7 +82,20 @@ def check_input(input):
     logger.info("Rules path: " + rules_path)
     rules = get_rules(rules_path)
     for rule in rules:
-        logger.info("Executing rule: " + rule)
         # execute the rule
-        exec(open(os.path.join(rules_path, rule)).read())
+        rule_file = os.path.join(rules_path, rule)
+
+        # get the file name without the extension
+        rule_name = os.path.splitext(rule)[0]
+        # Create a module spec
+        spec = importlib.util.spec_from_file_location(rule_name, rule_file)
+        # Create a module from the spec
+        module = importlib.util.module_from_spec(spec)
+        # Execute the module
+        spec.loader.exec_module(module)
+        # Execute the process function
+        result = module.process(input)
+        logger.info("Executing rule: " + rule + " - result: " + str(result))
+
+        # exec(open(os.path.join(rules_path, rule)).read())
     return "Rules executed successfully."
