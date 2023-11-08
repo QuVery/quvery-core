@@ -1,6 +1,7 @@
+import os
 import socket
+import sys
 from utils.logger import logger
-from check_input import check_input
 
 # Configuration variables
 host = '127.0.0.1'  # Localhost - ensures no remote access is allowed
@@ -51,3 +52,35 @@ def start_server():
                         logger.info("Command received: {}".format(command))
                         result = check_input(command)
                         conn.sendall(result.encode())
+
+
+def get_rules(rules_path):
+    rules = []
+    for file in os.listdir(rules_path):
+        if file.endswith(".py"):
+            rules.append(file)
+    rules.sort()
+    return rules
+
+
+def get_rules_path():
+    if getattr(sys, 'frozen', False):
+        # we are running in a bundle
+        application_path = os.path.dirname(sys.executable)
+    else:
+        # we are running in a normal Python environment
+        application_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(application_path, "rules")
+
+
+def check_input(input):
+    logger.info("Checking input: " + input)
+    # Now lets read all rules in the rules directory and execute them. rules are separate python files line r01_ruleone.py, r02_ruletwo.py, etc. we need to sort them by name to ensure they are executed in the correct order.
+    rules_path = get_rules_path()
+    logger.info("Rules path: " + rules_path)
+    rules = get_rules(rules_path)
+    for rule in rules:
+        logger.info("Executing rule: " + rule)
+        # execute the rule
+        exec(open(os.path.join(rules_path, rule)).read())
+    return "Rules executed successfully."
