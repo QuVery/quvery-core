@@ -53,6 +53,8 @@ def start_server():
                         # dispatch an event to notify main.py that a command has been received
                         logger.info("Command received: {}".format(command))
                         result = check_input(command)
+                        # result is an array of strings or boolean values. we need to convert it to a single string
+                        result = str(result)
                         conn.sendall(result.encode())
 
 
@@ -79,16 +81,34 @@ def check_input(input):
     logger.info("Checking input: " + input)
     # Now lets read all rules in the rules directory and execute them. rules are separate python files line r01_ruleone.py, r02_ruletwo.py, etc. we need to sort them by name to ensure they are executed in the correct order.
     rules_path = get_rules_path()
-    logger.info("Rules path: " + rules_path)
-    rules = get_rules(rules_path)
-    for rule in rules:
-        # execute the rule
-        rule_file = os.path.join(rules_path, rule)
+    precheck_subdir = os.path.join(rules_path, "1_precheck")
+    check_subdir = os.path.join(rules_path, "2_check")
+    postcheck_subdir = os.path.join(rules_path, "3_postcheck")
 
-        # get the file name without the extension
+    precheck_rules = get_rules(precheck_subdir)
+    check_rules = get_rules(check_subdir)
+    postcheck_rules = get_rules(postcheck_subdir)
+
+    precheck_result = process_rules(precheck_rules, precheck_subdir, input)
+    check_result = process_rules(check_rules, check_subdir, input)
+    postcheck_result = process_rules(postcheck_rules, postcheck_subdir, input)
+
+    all_results = []
+    all_results.extend(precheck_result)
+    all_results.extend(check_result)
+    all_results.extend(postcheck_result)
+
+    return all_results
+
+
+def process_rules(rules, subdir, input):
+    error_result = []
+    for rule in rules:
+        # get the file name without the extension. rule contains the full path to the file with the extension
         rule_name = os.path.splitext(rule)[0]
         # Create a module spec
-        spec = importlib.util.spec_from_file_location(rule_name, rule_file)
+        spec = importlib.util.spec_from_file_location(
+            rule_name, os.path.join(subdir, rule))
         # Create a module from the spec
         module = importlib.util.module_from_spec(spec)
         # Execute the module
@@ -96,6 +116,7 @@ def check_input(input):
         # Execute the process function
         result = module.process(input)
         logger.info("Executing rule: " + rule + " - result: " + str(result))
-
-        # exec(open(os.path.join(rules_path, rule)).read())
-    return "Rules executed successfully."
+        if (result == False):
+            logger.error("Rule failed: " + rule)
+            error_result.append(result)
+    return error_result

@@ -18,7 +18,7 @@ server_ip = '127.0.0.1'  # Server IP address
 server_port = 65432      # Server port
 
 # Python code to send
-code = "exit"
+code = "TEST CODE"
 
 # Send the code to the server
 send_code_to_server(server_ip, server_port, code)
