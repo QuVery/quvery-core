@@ -53,9 +53,7 @@ def start_server():
                         # dispatch an event to notify main.py that a command has been received
                         logger.info("Command received: {}".format(command))
                         result = check_input(command)
-                        # result is an array of strings or boolean values. we need to convert it to a single string
-                        result = str(result)
-                        conn.sendall(result.encode())
+                        conn.sendall(str(result).encode())
 
 
 def get_rules(rules_path):

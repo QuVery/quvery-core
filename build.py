@@ -13,4 +13,10 @@ PyInstaller.__main__.run([
 srcdir = 'rules'
 dstdir = 'dist/QuVery-Core/rules'
 
+# delete __pycache__ folders under all subdirectories of srcdir
+for root, dirs, files in os.walk(srcdir):
+    for dir in dirs:
+        if dir == '__pycache__':
+            shutil.rmtree(os.path.join(root, dir))
+
 shutil.copytree(srcdir, dstdir)
