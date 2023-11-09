@@ -10,4 +10,7 @@ def process(input):
     for obj in mesh_objects:
         if not len(obj.data.vertices):
             errors += (f"File: {input} - The object \"{obj.name}\" is a mesh, but has no geometry")
-    return errors
+    if errors != "":
+        return errors
+    else:
+        return True

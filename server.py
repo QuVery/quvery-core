@@ -4,6 +4,7 @@ import socket
 import sys
 from utils.logger import logger
 import importlib.util
+from enum import Enum
 
 # Configuration variables
 host = '127.0.0.1'  # Localhost - ensures no remote access is allowed
@@ -16,6 +17,14 @@ postcheck_rule_files = []
 precheck_modules = []
 check_modules = []
 postcheck_modules = []
+
+
+class Error_Codes(Enum):
+    NO_ERROR = ""
+    FILE_NOT_FOUND = "File does not exist. Use a valid file path after \"check\" command"
+    FILE_NOT_VALID = "Precheck failed. File is not valid."
+    MODULE_HAS_NO_RULE_NAME = "Module does not have a RULE_NAME attribute."
+    UNKNOWN_COMMAND = "Unknown command. Use \"help\" to get a list of all available commands."
 
 
 def start_server():
@@ -31,7 +40,11 @@ def start_server():
             with conn:
                 logger.info(f"Connected by {addr}")
                 while True:
-                    data = conn.recv(1024)
+                    try:
+                        data = conn.recv(1024)
+                    except (BrokenPipeError, ConnectionResetError) as e:
+                        logger.error(f"Error occurred: {e}")
+                        break
                     if not data:
                         break
                     # Convert bytes to string
@@ -105,11 +118,19 @@ def parse_command(command, conn):
             help_text += "help              - get a list of all available commands\n"
             help_text += "exit              - exit the server\n"
             conn.sendall(help_text.encode())
-    elif command.startswith('check '):
-        file_name = command[6:]
-        # we are dealing with a file as input
-        result = check_input(file_name)
-        conn.sendall(str(result).encode())
+    elif command.startswith('check'):
+        file_path = command[6:]
+        # we are dealing with a file path as input
+        # check if the file_path is valid
+        if not os.path.isfile(file_path):
+            logger.error(f"File {file_path} does not exist.")
+            conn.sendall(Error_Codes.FILE_NOT_FOUND.value.encode())
+        else:
+            result = check_input(file_path)
+            conn.sendall(str(result).encode())
+    else:
+        logger.error(f"Unknown command {command}")
+        conn.sendall(Error_Codes.UNKNOWN_COMMAND.value.encode())
 
 
 def get_commands():
@@ -145,44 +166,30 @@ def get_rules_path():
 
 
 def check_input(input):
-    # Now lets read all rules in the rules directory and execute them. rules are separate python files line r01_ruleone.py, r02_ruletwo.py, etc. we need to sort them by name to ensure they are executed in the correct order.
-    rules_path = get_rules_path()
-    precheck_subdir = os.path.join(rules_path, "1_precheck")
-    check_subdir = os.path.join(rules_path, "2_check")
-    postcheck_subdir = os.path.join(rules_path, "3_postcheck")
+    # process precheck rules with adding the result to the result list
+    for module in precheck_modules:
+        process_result = module.process(input)
+        if process_result != True:
+            return "Precheck failed. File is not valid."
 
-    precheck_rules = get_rule_files(precheck_subdir)
-    check_rules = get_rule_files(check_subdir)
-    postcheck_rules = get_rule_files(postcheck_subdir)
+    result = []
+    # Check rules
+    for module in check_modules:
+        rule_name = getattr(module, "RULE_NAME", None)
+        if rule_name is not None:
+            process_result = module.process(input)
+            if process_result != True:
+                result_pair = {
+                    rule_name,
+                    process_result
+                }
+                result.append(result_pair)
+        else:
+            logger.error(Error_Codes.MODULE_HAS_NO_RULE_NAME.value)
+            result.append(
+                Error_Codes.MODULE_HAS_NO_RULE_NAME.value + f"Skipping invalid rule {module}")
+    # process postcheck rules with adding the result to the result list
+    for module in postcheck_modules:
+        module.process(input)
 
-    precheck_result = process_rules(precheck_rules, precheck_subdir, input)
-    check_result = process_rules(check_rules, check_subdir, input)
-    postcheck_result = process_rules(postcheck_rules, postcheck_subdir, input)
-
-    all_results = []
-    all_results.extend(precheck_result)
-    all_results.extend(check_result)
-    all_results.extend(postcheck_result)
-
-    return all_results
-
-
-def process_rules(rules, subdir, input):
-    error_result = []
-    for rule in rules:
-        # get the file name without the extension. rule contains the full path to the file with the extension
-        rule_name = os.path.splitext(rule)[0]
-        # Create a module spec
-        spec = importlib.util.spec_from_file_location(
-            rule_name, os.path.join(subdir, rule))
-        # Create a module from the spec
-        module = importlib.util.module_from_spec(spec)
-        # Execute the module
-        spec.loader.exec_module(module)
-        # Execute the process function
-        result = module.process(input)
-        logger.info("Executing rule: " + rule + " - result: " + str(result))
-        if (result != True):
-            logger.error("Rule failed: " + rule)
-            error_result.append(result)
-    return error_result
+    return result
