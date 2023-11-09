@@ -1,4 +1,7 @@
+# these imports are used here for pyinstaller to see and embed the python modules
 import bpy
+import numpy as np
+
 from server import start_server
 from utils.logger import logger
 
