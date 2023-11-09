@@ -1,5 +1,5 @@
 # these imports are used here for pyinstaller to see and embed the python modules
-import bpy
+import bpy # https://pypi.org/project/bpy/
 import numpy as np
 
 from server import start_server
