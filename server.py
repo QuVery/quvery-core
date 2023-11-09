@@ -86,6 +86,7 @@ def parse_command(command, conn):
     command_list = [
         'exit',
         'get_rules',
+        'help'
     ]
     if command in command_list:
         # we are dealing with an internal command
@@ -97,9 +98,17 @@ def parse_command(command, conn):
             logger.info(
                 "Exit command received. Shutting down server.")
             sys.exit()
-    else:
-        # we are dealing with a rule command
-        result = check_input(command)
+        elif command == 'help':
+            help_text = "Available commands:\n"
+            help_text += "check <file_path> - check the file with all rules\n"
+            help_text += "get_rules         - get a list of all available check rules\n"
+            help_text += "help              - get a list of all available commands\n"
+            help_text += "exit              - exit the server\n"
+            conn.sendall(help_text.encode())
+    elif command.startswith('check '):
+        file_name = command[6:]
+        # we are dealing with a file as input
+        result = check_input(file_name)
         conn.sendall(str(result).encode())
 
 
