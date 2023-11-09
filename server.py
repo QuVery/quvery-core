@@ -5,14 +5,14 @@ import sys
 from types import ModuleType
 from utils.logger import logger
 import importlib.util
-from rule_parser import create_rules, all_rules, get_input_type
+from rule_parser import create_rules, all_rules, get_input_type, get_rules_names
 from rule_base import InputType
 from error_codes import Error_Codes
-from enum import Enum
 
 # Configuration variables
 host = '127.0.0.1'  # Localhost - ensures no remote access is allowed
 port = 65432        # Port to listen on (non-privileged ports are > 1023)
+
 
 def start_server():
     create_rules()
@@ -37,6 +37,7 @@ def start_server():
                     # Convert bytes to string
                     command = data.decode('utf-8')
                     parse_command(command, conn)
+
 
 def parse_command(command, conn):
     command_list = [
@@ -70,19 +71,6 @@ def parse_command(command, conn):
     else:
         logger.error(f"Unknown command {command}")
         conn.sendall(Error_Codes.UNKNOWN_COMMAND.value.encode())
-
-
-def get_rules_names():
-    # The command name is a variable called RULE_NAME in each module
-    commands = []
-    for ruleList in all_rules:
-        for module in ruleList.check_rules:
-            commands.append(module.RULE_NAME)
-        for module in ruleList.precheck_rules:
-            commands.append(module.RULE_NAME)
-        for module in ruleList.postcheck_rules:
-            commands.append(module.RULE_NAME)
-    return commands
 
 
 def check_input(input):
