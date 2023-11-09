@@ -9,6 +9,7 @@ class InputType(Enum):
     FILE_2D = "2D"
     FILE_AUDIO = "AUDIO"
     CUSTOM = "CUSTOM"
+    UNSUPPORTED = "UNSUPPORTED"
 
 # an abstract class for rules to inherit from
 class RuleList:

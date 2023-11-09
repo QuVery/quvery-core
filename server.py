@@ -5,9 +5,9 @@ import sys
 from types import ModuleType
 from utils.logger import logger
 import importlib.util
-import rule_parser
+from rule_parser import create_rules, all_rules, get_input_type
 from rule_base import InputType
-import error_codes as Error_Codes
+from error_codes import Error_Codes
 from enum import Enum
 
 # Configuration variables
@@ -15,7 +15,7 @@ host = '127.0.0.1'  # Localhost - ensures no remote access is allowed
 port = 65432        # Port to listen on (non-privileged ports are > 1023)
 
 def start_server():
-    rule_parser.create_rules()
+    create_rules()
     # Start the server socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
@@ -75,7 +75,7 @@ def parse_command(command, conn):
 def get_rules_names():
     # The command name is a variable called RULE_NAME in each module
     commands = []
-    for ruleList in rule_parser.all_rules:
+    for ruleList in all_rules:
         for module in ruleList.check_rules:
             commands.append(module.RULE_NAME)
         for module in ruleList.precheck_rules:
@@ -84,23 +84,13 @@ def get_rules_names():
             commands.append(module.RULE_NAME)
     return commands
 
-def get_input_type(input):
-    file_extension = input.split('.')[-1]
-    if os.path.isfile(input):
-        if file_extension in ['fbx', 'obj', 'gltf', 'glb', 'x3d', 'abc', 'dae', 'ply', 'stl', 'usd', 'blend']:
-            return InputType.FILE_3D
-        elif file_extension in ['jpg', 'jpeg', 'png', 'tga', 'tif', 'tiff', 'bmp', 'exr', 'psd']:
-            return InputType.FILE_2D
-        else:
-            return InputType.DEFAULT
-    elif os.path.isdir(input):
-        return InputType.DIRECTORY
-
 
 def check_input(input):
     input_type = get_input_type(input)
+    if input_type == InputType.UNSUPPORTED:
+        return Error_Codes.FILE_NOT_VALID.value
     result = []
-    for ruleList in rule_parser.all_rules:
+    for ruleList in all_rules:
         if ruleList.type == input_type:
             for module in ruleList.precheck_rules:
                 logger.info(f"Processing rule {module.RULE_NAME}")
@@ -110,9 +100,10 @@ def check_input(input):
             for module in ruleList.check_rules:
                 logger.info(f"Processing rule {module.RULE_NAME}")
                 process_result = module.process(input)
-                json_result = {}
-                json_result[module.RULE_NAME] = process_result
-                result.append(json_result)
+                if process_result != True:
+                    json_result = {}
+                    json_result[module.RULE_NAME] = process_result
+                    result.append(json_result)
             for module in ruleList.postcheck_rules:
                 logger.info(f"Processing rule {module.RULE_NAME}")
                 process_result = module.process(input)

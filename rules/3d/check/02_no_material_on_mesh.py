@@ -1,6 +1,6 @@
 import bpy
 
-RULE_NAME = "NoGeometryMesh"
+RULE_NAME = "NoMaterialOnMesh"
 
 
 def process(input):
@@ -8,8 +8,8 @@ def process(input):
     mesh_objects = [obj for obj in all_objects if obj.type == "MESH"]
     errors_json = {}
     for obj in mesh_objects:
-        if not len(obj.data.vertices):
-            errors_json[obj.name] = f"Has no geometry"
+        if not len(obj.material_slots):
+            errors_json[obj.name] = f"Has no material"
     if errors_json != {}:
         return errors_json
     else:

@@ -3,8 +3,7 @@ import os
 import sys
 from types import ModuleType
 from typing import List, Optional
-import error_codes
-import rule_base
+from rule_base import InputType, RuleList
 from utils.logger import logger
 
 rules_base_path: str = "rules"
@@ -12,7 +11,7 @@ precheck_subdir: str = "precheck"
 check_subdir: str = "check"
 postcheck_subdir: str = "postcheck"
 
-all_rules: List[rule_base.RuleList] = []
+all_rules: List[RuleList] = []
 
 def get_rules_path() -> str:
     application_path: str = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(os.path.abspath(__file__))
@@ -21,11 +20,11 @@ def get_rules_path() -> str:
 def create_rules() -> None:
     rules_path: str = get_rules_path()
 
-    list2D : rule_base.RuleList = find_rules(os.path.join(rules_path, rule_base.InputType.FILE_2D.value.lower()), rule_base.InputType.FILE_2D)
-    list3D : rule_base.RuleList = find_rules(os.path.join(rules_path, rule_base.InputType.FILE_3D.value.lower()), rule_base.InputType.FILE_3D)
-    listAudio : rule_base.RuleList = find_rules(os.path.join(rules_path, rule_base.InputType.FILE_AUDIO.value.lower()), rule_base.InputType.FILE_AUDIO)
-    listDir : rule_base.RuleList = find_rules(os.path.join(rules_path, rule_base.InputType.DIRECTORY.value.lower()), rule_base.InputType.DIRECTORY)
-    listCustom: rule_base.RuleList = find_rules(os.path.join(rules_path, rule_base.InputType.CUSTOM.value.lower()), rule_base.InputType.CUSTOM)
+    list2D : RuleList = find_rules(os.path.join(rules_path, InputType.FILE_2D.value.lower()), InputType.FILE_2D)
+    list3D : RuleList = find_rules(os.path.join(rules_path, InputType.FILE_3D.value.lower()), InputType.FILE_3D)
+    listAudio : RuleList = find_rules(os.path.join(rules_path, InputType.FILE_AUDIO.value.lower()), InputType.FILE_AUDIO)
+    listDir : RuleList = find_rules(os.path.join(rules_path, InputType.DIRECTORY.value.lower()), InputType.DIRECTORY)
+    listCustom: RuleList = find_rules(os.path.join(rules_path, InputType.CUSTOM.value.lower()), InputType.CUSTOM)
 
     all_rules.append(list2D)
     all_rules.append(list3D)
@@ -33,7 +32,7 @@ def create_rules() -> None:
     all_rules.append(listDir)
     all_rules.append(listCustom)
 
-def find_rules(path: str, input_type: rule_base.InputType) -> None:
+def find_rules(path: str, input_type: InputType) -> None:
     precheck_subdir_path: str = os.path.join(path, precheck_subdir)
     check_subdir_path: str = os.path.join(path, check_subdir)
     postcheck_subdir_path: str = os.path.join(path, postcheck_subdir)
@@ -42,7 +41,7 @@ def find_rules(path: str, input_type: rule_base.InputType) -> None:
     check_rule_files: List[str] = get_rule_files(check_subdir_path)
     postcheck_rule_files: List[str] = get_rule_files(postcheck_subdir_path)
 
-    rule_list: rule_base.RuleList = rule_base.RuleList(input_type)
+    rule_list: RuleList = RuleList(input_type)
 
     for rule_file_name in precheck_rule_files:
         module: Optional[ModuleType] = create_rule_from_file(precheck_subdir_path, rule_file_name)
@@ -76,3 +75,15 @@ def create_rule_from_file(subdir: str, rule_file_name: str) -> Optional[ModuleTy
         logger.error(f"Module \"{rule_name}\" in \"{rule_file_name}\" does not have a RULE_NAME attribute. skipping this rule...")
         return None
     return module
+
+def get_input_type(input):
+    file_extension = input.split('.')[-1]
+    if os.path.isfile(input):
+        if file_extension in ['fbx', 'obj', 'gltf', 'glb', 'x3d', 'abc', 'dae', 'ply', 'stl', 'usd', 'blend']:
+            return InputType.FILE_3D
+        elif file_extension in ['jpg', 'jpeg', 'png', 'tga', 'tif', 'tiff', 'bmp', 'exr', 'psd']:
+            return InputType.FILE_2D
+        else:
+            return InputType.UNSUPPORTED
+    elif os.path.isdir(input):
+        return InputType.DIRECTORY
