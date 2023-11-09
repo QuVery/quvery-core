@@ -1,6 +1,7 @@
 import bpy
 
-RULE_NAME = "ImportFile"
+RULE_NAME = "Load3DFile"
+TYPE = "3D"
 
 # https://docs.blender.org/api/current/bpy.ops.import_scene.html
 # https://docs.blender.org/api/current/bpy.ops.wm.html
@@ -10,7 +11,7 @@ def process(input):
     blender_format = 'blend'
     default_3D_formats = ['fbx', 'obj', 'gltf', 'glb', 'x3d']
     wm_3D_formats = ['abc', 'dae', 'ply', 'stl', 'usd']
-    image_formats = ['jpg', 'jpeg', 'png', 'tga', 'tif', 'tiff', 'bmp', 'exr']
+    # image_formats = ['jpg', 'jpeg', 'png', 'tga', 'tif', 'tiff', 'bmp', 'exr']
     # check the input file extension
     file_extension = input.split('.')[-1]
 
@@ -33,13 +34,13 @@ def process(input):
                 bpy.ops.wm.__getattribute__(
                     file_extension + '_import')(filepath=input)
         return True
-    elif file_extension in image_formats:
-        # file is an image
-        # import the image file
-        bpy.ops.image.open(filepath=input)
-        return True
+    # elif file_extension in image_formats:
+    #     # file is an image
+    #     # import the image file
+    #     bpy.ops.image.open(filepath=input)
+    #     return True
     else:
         # file is not a 3D model or an image
         print(
-            f"ImportFileRule: file {input} is not a 3D model or an image, skipping import.")
-        return (RULE_NAME, f"File {input} is not a 3D model or an image")
+            f"LoadFile: file {input} is not supported as a 3D model.")
+        return (RULE_NAME, f"File {input} is not supported as a 3D model.")

@@ -1,12 +1,9 @@
-import bpy
+RULE_NAME = "GetInfo2D"
+TYPE = "2D"
 
-RULE_NAME = "GetInfo"
-
-# this rule will return all information about the file:
-# total Objects count in the file
-# total triangle count
-# total vertex count
-# total face count
+# this rule will return all information about the 2d file:
+# File size
+# Image dimensions
 
 
 def process(input):

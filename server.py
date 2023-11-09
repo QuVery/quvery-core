@@ -2,6 +2,7 @@ import importlib
 import os
 import socket
 import sys
+from types import ModuleType
 from utils.logger import logger
 import importlib.util
 from enum import Enum
@@ -19,12 +20,19 @@ check_modules = []
 postcheck_modules = []
 
 
+class InputType(Enum):
+    DEFAULT = "DEFAULT"
+    DIRECTORY = "DIR"
+    FILE_3D = "3D"
+    FILE_2D = "2D"
+
+
 class Error_Codes(Enum):
     NO_ERROR = ""
-    FILE_NOT_FOUND = "File does not exist. Use a valid file path after \"check\" command"
-    FILE_NOT_VALID = "Precheck failed. File is not valid."
-    MODULE_HAS_NO_RULE_NAME = "Module does not have a RULE_NAME attribute."
-    UNKNOWN_COMMAND = "Unknown command. Use \"help\" to get a list of all available commands."
+    FILE_NOT_FOUND = "Error: File does not exist. Use a valid file path after \"check\" command"
+    FILE_NOT_VALID = "Error: File is not valid."
+    MODULE_HAS_NO_RULE_NAME = "Error: Module does not have a RULE_NAME attribute."
+    UNKNOWN_COMMAND = "Error: Unknown command. Use \"help\" to get a list of all available commands."
 
 
 def start_server():
@@ -119,15 +127,22 @@ def parse_command(command, conn):
             help_text += "exit              - exit the server\n"
             conn.sendall(help_text.encode())
     elif command.startswith('check'):
-        file_path = command[6:]
-        # we are dealing with a file path as input
-        # check if the file_path is valid
-        if not os.path.isfile(file_path):
-            logger.error(f"File {file_path} does not exist.")
-            conn.sendall(Error_Codes.FILE_NOT_FOUND.value.encode())
-        else:
-            result = check_input(file_path)
+        input = command[6:]
+        # we are dealing with a file or path as input
+        input_type = get_input_type(input)
+        logger.info(f"Input type: {input_type}")
+        if input_type == InputType.FILE_3D:
+            result = check_file(input)
             conn.sendall(str(result).encode())
+        elif input_type == InputType.FILE_2D:
+            result = check_file(input)
+            conn.sendall(str(result).encode())
+        elif input_type == InputType.DIRECTORY:
+            result = process_directory(input)
+            conn.sendall(str(result).encode())
+        else:
+            logger.error(Error_Codes.FILE_NOT_VALID.value)
+            conn.sendall(Error_Codes.FILE_NOT_VALID.value.encode())
     else:
         logger.error(f"Unknown command {command}")
         conn.sendall(Error_Codes.UNKNOWN_COMMAND.value.encode())
@@ -165,18 +180,51 @@ def get_rules_path():
     return os.path.join(application_path, "rules")
 
 
-def check_input(input):
+def get_input_type(input):
+    file_extension = input.split('.')[-1]
+    if os.path.isfile(input):
+        if file_extension in ['fbx', 'obj', 'gltf', 'glb', 'x3d', 'abc', 'dae', 'ply', 'stl', 'usd', 'blend']:
+            return InputType.FILE_3D
+        elif file_extension in ['jpg', 'jpeg', 'png', 'tga', 'tif', 'tiff', 'bmp', 'exr', 'psd']:
+            return InputType.FILE_2D
+        else:
+            return InputType.DEFAULT
+    elif os.path.isdir(input):
+        return InputType.DIRECTORY
+
+
+def check_file(input):
+    input_type = get_input_type(input)
     # process precheck rules with adding the result to the result list
     for module in precheck_modules:
-        process_result = module.process(input)
-        if process_result != True:
-            return "Precheck failed. File is not valid."
+        if module_matches(module, input_type):
+            logger.info(f"Processing rule {module.RULE_NAME}")
+            process_result = module.process(input)
+            if process_result != True:
+                return "Precheck failed. File is not valid."
 
     result = []
     # Check rules
     for module in check_modules:
-        rule_name = getattr(module, "RULE_NAME", None)
-        if rule_name is not None:
+        if module_matches(module, input_type):
+            logger.info(f"Processing rule {module.RULE_NAME}")
+            rule_name = getattr(module, "RULE_NAME", None)
+            if rule_name is not None:
+                process_result = module.process(input)
+                if process_result != True:
+                    result_pair = {
+                        rule_name,
+                        process_result
+                    }
+                    result.append(result_pair)
+            else:
+                logger.error(Error_Codes.MODULE_HAS_NO_RULE_NAME.value)
+                result.append(
+                    Error_Codes.MODULE_HAS_NO_RULE_NAME.value + f"Skipping invalid rule {module}")
+    # process postcheck rules with adding the result to the result list
+    for module in postcheck_modules:
+        if module_matches(module, input_type):
+            logger.info(f"Processing rule {module.RULE_NAME}")
             process_result = module.process(input)
             if process_result != True:
                 result_pair = {
@@ -184,12 +232,18 @@ def check_input(input):
                     process_result
                 }
                 result.append(result_pair)
-        else:
-            logger.error(Error_Codes.MODULE_HAS_NO_RULE_NAME.value)
-            result.append(
-                Error_Codes.MODULE_HAS_NO_RULE_NAME.value + f"Skipping invalid rule {module}")
-    # process postcheck rules with adding the result to the result list
-    for module in postcheck_modules:
         module.process(input)
 
     return result
+
+
+def module_matches(module: ModuleType, module_type: InputType):
+    # if module type is DEFAULT or it matches the input type, return true else return false
+    if module.TYPE == module_type.value or module_type == InputType.DEFAULT.value:
+        return True
+    return False
+
+
+def process_directory(input):
+    # parse the directory and get all files with all formats
+    return InputType.DIRECTORY.value

@@ -1,6 +1,7 @@
 import bpy
 
-RULE_NAME = "ClearScene"
+RULE_NAME = "Clean"
+TYPE = "3D"
 
 
 def process(input):
