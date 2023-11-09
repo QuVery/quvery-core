@@ -1,7 +1,6 @@
 import bpy
 
 RULE_NAME = "NoGeometryMesh"
-TYPE = "3D"
 
 
 def process(input):

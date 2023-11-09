@@ -1,7 +1,6 @@
 import bpy
 
 RULE_NAME = "GetInfo3D"
-TYPE = "3D"
 
 # this rule will return all information about the file:
 # total Objects count in the file
@@ -11,9 +10,9 @@ TYPE = "3D"
 
 
 def process(input):
-    report = ""
+    report_json = {}
     all_objects = bpy.data.objects
-    report += f"OBJECTS={len(all_objects)},"
+    report_json["OBJECTS"] = len(all_objects)
     mesh_objects = [obj for obj in all_objects if obj.type == "MESH"]
     total_triangles = 0
     total_vertices = 0
@@ -23,7 +22,7 @@ def process(input):
         total_triangles += len(mesh.polygons)
         total_vertices += len(mesh.vertices)
         total_faces += len(mesh.polygons)
-    report += f"TRIANGLES={total_triangles},"
-    report += f"VERTICES={total_vertices},"
-    report += f"FACES={total_faces}"
-    return report
+    report_json["TRIANGLES"] = total_triangles
+    report_json["VERTICES"] = total_vertices
+    report_json["FACES"] = total_faces
+    return report_json

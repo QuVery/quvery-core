@@ -1,7 +1,6 @@
 import bpy
 
 RULE_NAME = "Load3DFile"
-TYPE = "3D"
 
 # https://docs.blender.org/api/current/bpy.ops.import_scene.html
 # https://docs.blender.org/api/current/bpy.ops.wm.html

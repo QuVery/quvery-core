@@ -1,5 +1,4 @@
 RULE_NAME = "GetInfo2D"
-TYPE = "2D"
 
 # this rule will return all information about the 2d file:
 # File size
