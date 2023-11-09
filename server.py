@@ -9,26 +9,17 @@ import importlib.util
 host = '127.0.0.1'  # Localhost - ensures no remote access is allowed
 port = 65432        # Port to listen on (non-privileged ports are > 1023)
 
-# Function to execute Python code from a string
+precheck_rule_files = []
+check_rule_files = []
+postcheck_rule_files = []
 
-
-def execute_code(code):
-    logger.info("Executing code from a string")
-
-# Function to execute Python code from a file
-
-
-def execute_file(file_path):
-    logger.info("Executing with input file: {}".format(file_path))
-
-# Function to execute all rules from the rules directory
-
-
-def execute_rules():
-    logger.info("Executing all rules")
+precheck_modules = []
+check_modules = []
+postcheck_modules = []
 
 
 def start_server():
+    create_modules()
     # Start the server socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
@@ -45,18 +36,87 @@ def start_server():
                         break
                     # Convert bytes to string
                     command = data.decode('utf-8')
-                    if command == 'exit':
-                        logger.info(
-                            "Exit command received. Shutting down server.")
-                        sys.exit()
-                    else:
-                        # dispatch an event to notify main.py that a command has been received
-                        logger.info("Command received: {}".format(command))
-                        result = check_input(command)
-                        conn.sendall(str(result).encode())
+                    parse_command(command, conn)
 
 
-def get_rules(rules_path):
+def create_modules():
+    # Read all rules in the rules directory and subdirectories.
+    # rules are separate python files
+    rules_path = get_rules_path()
+    precheck_subdir = os.path.join(rules_path, "1_precheck")
+    check_subdir = os.path.join(rules_path, "2_check")
+    postcheck_subdir = os.path.join(rules_path, "3_postcheck")
+
+    precheck_rule_files = get_rule_files(precheck_subdir)
+    check_rule_files = get_rule_files(check_subdir)
+    postcheck_rule_files = get_rule_files(postcheck_subdir)
+
+    for rule in precheck_rule_files:
+        create_module_from_file(precheck_subdir, rule, precheck_modules)
+
+    for rule in check_rule_files:
+        create_module_from_file(check_subdir, rule, check_modules)
+
+    for rule in postcheck_rule_files:
+        create_module_from_file(postcheck_subdir, rule, postcheck_modules)
+
+
+def create_module_from_file(subdir, rule, modules):
+    # get the file name without the extension. rule contains the full path to the file with the extension
+    rule_name = os.path.splitext(rule)[0]
+    # Create a module spec
+    spec = importlib.util.spec_from_file_location(
+        rule_name, os.path.join(subdir, rule))
+    # Create a module from the spec
+    module = importlib.util.module_from_spec(spec)
+
+    # Load the module; this is necessary to access module attributes
+    spec.loader.exec_module(module)
+
+    module_name = getattr(module, "RULE_NAME", None)
+    if module_name is not None:
+        modules.append(module)
+        logger.info("Loaded module: " + module_name)
+    else:
+        logger.error(
+            f"Module {rule_name} does not have a RULE_NAME attribute.")
+
+
+def parse_command(command, conn):
+    command_list = [
+        'exit',
+        'get_rules',
+    ]
+    if command in command_list:
+        # we are dealing with an internal command
+        if command == 'get_rules':
+            # get a list of all available check rules
+            result = get_commands()
+            conn.sendall(str(result).encode())
+        elif command == 'exit':
+            logger.info(
+                "Exit command received. Shutting down server.")
+            sys.exit()
+    else:
+        # we are dealing with a rule command
+        result = check_input(command)
+        conn.sendall(str(result).encode())
+
+
+def get_commands():
+    # The command name is a variable called RULE_NAME in each module
+    commands = []
+    for module in precheck_modules:
+        commands.append(getattr(module, "RULE_NAME", None))
+    for module in check_modules:
+        commands.append(getattr(module, "RULE_NAME", None))
+    for module in postcheck_modules:
+        commands.append(getattr(module, "RULE_NAME", None))
+    logger.info("Available commands: " + str(commands))
+    return commands
+
+
+def get_rule_files(rules_path):
     rules = []
     for file in os.listdir(rules_path):
         if file.endswith(".py"):
@@ -82,9 +142,9 @@ def check_input(input):
     check_subdir = os.path.join(rules_path, "2_check")
     postcheck_subdir = os.path.join(rules_path, "3_postcheck")
 
-    precheck_rules = get_rules(precheck_subdir)
-    check_rules = get_rules(check_subdir)
-    postcheck_rules = get_rules(postcheck_subdir)
+    precheck_rules = get_rule_files(precheck_subdir)
+    check_rules = get_rule_files(check_subdir)
+    postcheck_rules = get_rule_files(postcheck_subdir)
 
     precheck_result = process_rules(precheck_rules, precheck_subdir, input)
     check_result = process_rules(check_rules, check_subdir, input)
