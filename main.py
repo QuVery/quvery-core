@@ -8,7 +8,16 @@ from utils.logger import logger
 
 create_rules()
 
-app = FastAPI()
+app = FastAPI(
+    title="QuVery Core API",
+    description="The QuVery Core API is a REST API that allows you to check files against rules.",
+    version="0.1.0",
+    contact=dict(
+        name="Omid Saadat",
+        url="https://www.omid-saadat.com",
+        email="info@omid-saadat.com",
+    )
+)
 
 # get a list of all available rule types
 
