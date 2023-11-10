@@ -6,7 +6,7 @@ import sys
 from types import ModuleType
 from utils.logger import logger
 import importlib.util
-from rule_parser import create_rules, all_rules, get_input_type, get_rules_names, execute_rules
+from rule_parser import create_rules, get_rule_types, get_input_type, get_rules_names, execute_rules
 from rule_base import InputType
 from error_codes import Error_Codes
 
@@ -43,26 +43,33 @@ def start_server():
 def parse_command(command, conn):
     command_list = [
         'exit',
-        'get_rules',
+        'get_rule_types',
         'help'
     ]
     if command in command_list:
         # we are dealing with an internal command
-        if command == 'get_rules':
-            # get a list of all available check rules
-            result = get_rules_names()
-            send_message(conn, result)
-        elif command == 'exit':
+        if command == 'exit':
             logger.info(
                 "Exit command received. Shutting down server.")
             sys.exit()
         elif command == 'help':
             help_text = "Available commands:\n"
-            help_text += "check <file_path> - check the file with all rules\n"
-            help_text += "get_rules         - get a list of all available check rules\n"
-            help_text += "help              - get a list of all available commands\n"
-            help_text += "exit              - exit the server\n"
+            help_text += "check <file_path>     - check the file with all rules\n"
+            help_text += "get_rule_types        - get a list of all available rule types\n"
+            help_text += "get_rules <rule_type> - get a list of all available rules of the given type\n"
+            help_text += "help                  - get a list of all available commands\n"
+            help_text += "exit                  - exit the server\n"
             send_message(conn, help_text)
+        elif command == 'get_rule_types':
+            # get a list of all available rule types
+            result = get_rule_types()
+            send_message(conn, result)
+    elif command.startswith('get_rules'):
+        input = command[10:]
+
+        # get a list of all available check rules
+        result = get_rules_names()
+        send_message(conn, result)
     elif command.startswith('check'):
         input = command[6:]
         # we are dealing with a file or path as input

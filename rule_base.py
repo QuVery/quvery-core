@@ -6,10 +6,10 @@ from utils.logger import logger
 
 
 class InputType(Enum):
-    DIRECTORY = "DIR"
     FILE_3D = "3D"
     FILE_2D = "2D"
     FILE_AUDIO = "AUDIO"
+    DIRECTORY = "DIR"
     CUSTOM = "CUSTOM"
     UNSUPPORTED = "UNSUPPORTED"
 

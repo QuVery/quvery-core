@@ -8,7 +8,11 @@ There are 2 parts for the whole QuVery project:
 
 ### Core
 
-This is the core part of the package. it runs a server that listens for instruction like getting all rules or will recieve a file or multiple files to be processed and will return the process results.
+This is the core part of the package. it runs a local server that listens for instruction.
+here are some of the messages that the server will listen to:
+
+- get_rule_types : this will return all the rule types that are available in the core. eg: 3d, 2d, audio, custom, etc.
+
 There are 3 types of rules:
 
 #### PreCheck
