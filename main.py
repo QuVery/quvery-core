@@ -62,7 +62,7 @@ def serve():
     Serve the web application.
     """
     config = uvicorn.Config(
-        app=app, port=8000, host="0.0.0.0", log_level="info")
+        app=app, port=8000, host="127.0.0.1", log_level="info")
     server = uvicorn.Server(config)
     server.run()
 
