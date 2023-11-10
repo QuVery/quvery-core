@@ -11,12 +11,11 @@ def process(input):
 
     for obj in mesh_objects:
         mesh = obj.data
-        edge_indices = {key: index for index, key in enumerate(mesh.edge_keys)}
-        edge_face_count = Counter()
+        edge_face_count = Counter({e.index: 0 for e in mesh.edges})
 
         for poly in mesh.polygons:
-            for edge_key in poly.edge_keys:
-                edge_idx = edge_indices[edge_key]
+            for loop_index in poly.loop_indices:
+                edge_idx = mesh.loops[loop_index].edge_index
                 edge_face_count[edge_idx] += 1
 
         errors = [
@@ -24,4 +23,4 @@ def process(input):
         if errors:
             errors_json[obj.name] = errors
 
-    return errors_json if errors_json else True
+    return errors_json if errors_json else {}
