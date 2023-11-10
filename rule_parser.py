@@ -64,18 +64,13 @@ def create_rules() -> None:
     custom_extensions = __load_custom_extensions()
 
 
-def get_rules_names():
-    # TODO: add input type to input parameters of this function
+def get_rules(type: InputType) -> list[str]:
     # The command name is a variable called RULE_NAME in each module
-    commands = []
+    rules = []
     for ruleList in _all_rules:
-        for module in ruleList.check_rules:
-            commands.append(module.RULE_NAME)
-        for module in ruleList.precheck_rules:
-            commands.append(module.RULE_NAME)
-        for module in ruleList.postcheck_rules:
-            commands.append(module.RULE_NAME)
-    return commands
+        if ruleList.type == type:
+            rules = ruleList.get_rules()
+    return rules
 
 
 def execute_rules(input: str) -> list[str]:

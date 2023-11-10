@@ -32,6 +32,16 @@ class RuleList:
     def add_postcheck_rule(self, rule: ModuleType):
         self._postcheck_rules.append(rule)
 
+    def get_rules(self):
+        rules = []
+        for module in self._precheck_rules:
+            rules.append(module.RULE_NAME)
+        for module in self._check_rules:
+            rules.append(module.RULE_NAME)
+        for module in self._postcheck_rules:
+            rules.append(module.RULE_NAME)
+        return rules
+
     def execute_rules(self, input):
         result = []
         for module in self._precheck_rules:

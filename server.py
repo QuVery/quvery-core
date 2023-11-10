@@ -6,7 +6,7 @@ import sys
 from types import ModuleType
 from utils.logger import logger
 import importlib.util
-from rule_parser import create_rules, get_rule_types, get_input_type, get_rules_names, execute_rules
+from rule_parser import create_rules, get_rule_types, get_input_type, get_rules, execute_rules
 from rule_base import InputType
 from error_codes import Error_Codes
 
@@ -66,9 +66,10 @@ def parse_command(command, conn):
             send_message(conn, result)
     elif command.startswith('get_rules'):
         input = command[10:]
-
-        # get a list of all available check rules
-        result = get_rules_names()
+        # cast the input to InputType
+        input_type = InputType(input.upper())
+        # get a list of all available rules of the given type
+        result = get_rules(input_type)
         send_message(conn, result)
     elif command.startswith('check'):
         input = command[6:]
