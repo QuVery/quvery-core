@@ -6,7 +6,7 @@ import sys
 from types import ModuleType
 from utils.logger import logger
 import importlib.util
-from rule_parser import create_rules, all_rules, get_input_type, get_rules_names
+from rule_parser import create_rules, all_rules, get_input_type, get_rules_names, execute_rules
 from rule_base import InputType
 from error_codes import Error_Codes
 
@@ -105,26 +105,7 @@ def check_input(input):
     elif input_type == InputType.DIRECTORY:
         result: str = parse_directory(input)
         return result
-    result = []
-    for ruleList in all_rules:
-        if ruleList.type == input_type:
-            for module in ruleList.precheck_rules:
-                logger.info(f"Processing rule {module.RULE_NAME}")
-                process_result = module.process(input)
-                if process_result != True:
-                    return f"Precheck failed at rule \"{module.RULE_NAME}\"."
-            for module in ruleList.check_rules:
-                logger.info(f"Processing rule {module.RULE_NAME}")
-                process_result = module.process(input)
-                if process_result != True:
-                    json_result = {}
-                    json_result[module.RULE_NAME] = process_result
-                    result.append(json_result)
-            for module in ruleList.postcheck_rules:
-                logger.info(f"Processing rule {module.RULE_NAME}")
-                process_result = module.process(input)
-                if process_result != True:
-                    return f"Postcheck failed at rule \"{module.RULE_NAME}\"."
+    result = execute_rules(input)
     return result
 
 

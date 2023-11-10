@@ -46,7 +46,6 @@ def create_rules() -> None:
     all_rules.append(listAudio)
     all_rules.append(listDir)
     all_rules.append(listCustom)
-
     custom_extensions = load_custom_extensions()
 
 
@@ -145,3 +144,13 @@ def get_rules_names():
         for module in ruleList.postcheck_rules:
             commands.append(module.RULE_NAME)
     return commands
+
+
+def execute_rules(input: str) -> list[str]:
+    input_type = get_input_type(input)
+    result = []
+    for ruleList in all_rules:
+        if ruleList.type == input_type:
+            return ruleList.execute_rules(input)
+
+    return result
