@@ -30,7 +30,9 @@ def process(input):
                 print("Loading blender file: " + input)
                 bpy.ops.wm.open_mainfile(filepath=input)
             except Exception as e:
-                print(f"An error occurred: {e}")
+                import traceback
+                traceback.print_exc()
+                print(f"An error occurred: {e.__class__.__name__}, {e}")
         else:
             print("Loading 3D file: " + input)
             # import the model file

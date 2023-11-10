@@ -5,6 +5,16 @@ from fastapi import FastAPI, Path
 import uvicorn
 from rule_parser import create_rules, get_rule_types, get_rules, execute_rules_for_file, execute_rules_in_directory
 from utils.logger import logger
+from bpy.app.handlers import persistent
+
+
+@persistent
+def load_handler(dummy):
+    print("Load Handler:", bpy.data.filepath)
+
+
+bpy.app.handlers.load_post.append(load_handler)
+
 
 create_rules()
 
@@ -37,7 +47,7 @@ def get_rules_api(rule_type: str):
 
 
 @app.get("/check/{file_path:path}")
-def check_file(file_path: str = Path(...)):
+async def check_file(file_path: str = Path(...)):
     logger.info(f"Checking file {file_path}")
     result = execute_rules_for_file(file_path)
     return result
@@ -46,7 +56,7 @@ def check_file(file_path: str = Path(...)):
 
 
 @app.get("/check_dir/{dir_path:path}")
-def check_dir(dir_path: str = Path(...)):
+async def check_dir(dir_path: str = Path(...)):
     logger.info(f"Checking directory {dir_path}")
     result = execute_rules_in_directory(dir_path)
     return result
