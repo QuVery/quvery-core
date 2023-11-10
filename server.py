@@ -6,7 +6,7 @@ import sys
 from types import ModuleType
 from utils.logger import logger
 import importlib.util
-from rule_parser import create_rules, get_rule_types, __get_input_type, get_rules, execute_rules
+from rule_parser import create_rules, get_rule_types, __get_input_type, get_rules, execute_rules_for_file
 from rule_base import InputType
 from error_codes import Error_Codes
 
@@ -113,7 +113,7 @@ def check_input(input):
     elif input_type == InputType.DIRECTORY:
         result: str = parse_directory(input)
         return result
-    result = execute_rules(input)
+    result = execute_rules_for_file(input)
     return result
 
 

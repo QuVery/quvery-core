@@ -1,3 +1,4 @@
+import os
 import bpy
 
 RULE_NAME = "Load3DFile"
@@ -7,10 +8,15 @@ RULE_NAME = "Load3DFile"
 
 
 def process(input):
+    # delete all objects from the scene
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.object.delete(use_global=False, confirm=False)
+
     blender_format = 'blend'
     default_3D_formats = ['fbx', 'obj', 'gltf', 'glb', 'x3d']
     wm_3D_formats = ['abc', 'dae', 'ply', 'stl', 'usd']
-    # image_formats = ['jpg', 'jpeg', 'png', 'tga', 'tif', 'tiff', 'bmp', 'exr']
+
+    input = os.path.normpath(input)
     # check the input file extension
     file_extension = input.split('.')[-1]
 
@@ -20,8 +26,13 @@ def process(input):
         # file is a 3D model or a blender file
         # if the file is a blender file, we need to open it instead of importing it
         if (file_extension == blender_format):
-            bpy.ops.wm.open_mainfile(filepath=input)
+            try:
+                print("Loading blender file: " + input)
+                bpy.ops.wm.open_mainfile(filepath=input)
+            except Exception as e:
+                print(f"An error occurred: {e}")
         else:
+            print("Loading 3D file: " + input)
             # import the model file
             if (file_extension == 'glb'):
                 file_extension = 'gltf'

@@ -4,6 +4,7 @@ import os
 import sys
 from types import ModuleType
 from typing import List, Optional
+from error_codes import Error_Codes
 from rule_base import InputType, RuleList
 from utils.logger import logger
 
@@ -58,14 +59,32 @@ def get_rules(type: str) -> list[str]:
     return rules
 
 
-def execute_rules(input: str) -> list[str]:
+def execute_rules_for_file(input: str) -> list[str]:
     input_type = __get_input_type(input)
-    result = []
+    if input_type == InputType.UNSUPPORTED:
+        return {"input": input, "error": Error_Codes.FILE_NOT_VALID.value}
+    result_json = {}
     for ruleList in _all_rules:
         if ruleList.type == input_type:
-            return ruleList.execute_rules(input)
+            result = ruleList.execute_rules(input)
+            if result != True:
+                result_json = result
+    return result_json
 
-    return result
+
+def execute_rules_in_directory(dir: str) -> list[str]:
+    # list all files in the directory and run execute_rules on each file
+    result_json = {}
+    result_json["input"] = dir
+    files_array = []
+    for root, dirs, files in os.walk(dir):
+        for file in files:
+            file_path = os.path.join(root, file)
+            result = execute_rules_for_file(file_path)
+            if result != True:
+                files_array.append(result)
+    result_json["files"] = files_array
+    return result_json
 
 
 def get_rule_types() -> list[str]:
@@ -77,8 +96,8 @@ def get_rule_types() -> list[str]:
 
 
 def __get_input_type(input):
-    file_extension = input.split('.')[-1]
     if os.path.isfile(input):
+        file_extension = input.split('.')[-1]
         if file_extension in _supported_3d_extensions:
             return InputType.FILE_3D
         elif file_extension in _supported_2d_extensions:
