@@ -27,21 +27,6 @@ _all_rules: List[RuleList] = []
 # region public functions
 
 
-def get_input_type(input):
-    file_extension = input.split('.')[-1]
-    if os.path.isfile(input):
-        if file_extension in _supported_3d_extensions:
-            return InputType.FILE_3D
-        elif file_extension in _supported_2d_extensions:
-            return InputType.FILE_2D
-        elif file_extension in _custom_extensions:
-            return InputType.CUSTOM
-        else:
-            return InputType.UNSUPPORTED
-    elif os.path.isdir(input):
-        return InputType.DIRECTORY
-
-
 def create_rules() -> None:
     rules_path: str = __get_rules_path()
 
@@ -64,17 +49,17 @@ def create_rules() -> None:
     custom_extensions = __load_custom_extensions()
 
 
-def get_rules(type: InputType) -> list[str]:
+def get_rules(type: str) -> list[str]:
     # The command name is a variable called RULE_NAME in each module
     rules = []
     for ruleList in _all_rules:
-        if ruleList.type == type:
+        if ruleList.type.value.lower() == type.lower():
             rules = ruleList.get_rules()
     return rules
 
 
 def execute_rules(input: str) -> list[str]:
-    input_type = get_input_type(input)
+    input_type = __get_input_type(input)
     result = []
     for ruleList in _all_rules:
         if ruleList.type == input_type:
@@ -89,6 +74,21 @@ def get_rule_types() -> list[str]:
 # endregion
 
 # region private functions
+
+
+def __get_input_type(input):
+    file_extension = input.split('.')[-1]
+    if os.path.isfile(input):
+        if file_extension in _supported_3d_extensions:
+            return InputType.FILE_3D
+        elif file_extension in _supported_2d_extensions:
+            return InputType.FILE_2D
+        elif file_extension in _custom_extensions:
+            return InputType.CUSTOM
+        else:
+            return InputType.UNSUPPORTED
+    elif os.path.isdir(input):
+        return InputType.DIRECTORY
 
 
 def __load_custom_extensions() -> list[str]:

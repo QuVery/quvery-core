@@ -6,7 +6,7 @@ import sys
 from types import ModuleType
 from utils.logger import logger
 import importlib.util
-from rule_parser import create_rules, get_rule_types, get_input_type, get_rules, execute_rules
+from rule_parser import create_rules, get_rule_types, __get_input_type, get_rules, execute_rules
 from rule_base import InputType
 from error_codes import Error_Codes
 
@@ -107,7 +107,7 @@ def send_message(conn: socket.socket, result):
 
 
 def check_input(input):
-    input_type = get_input_type(input)
+    input_type = __get_input_type(input)
     if input_type == InputType.UNSUPPORTED:
         return Error_Codes.FILE_NOT_VALID.value
     elif input_type == InputType.DIRECTORY:

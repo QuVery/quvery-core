@@ -17,7 +17,7 @@ class InputType(Enum):
 
 
 class RuleList:
-    def __init__(self, type):
+    def __init__(self, type: InputType):
         self.type = type
         self._precheck_rules: list[ModuleType] = []
         self._check_rules: list[ModuleType] = []
