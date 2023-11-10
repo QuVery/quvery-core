@@ -1,4 +1,5 @@
 import importlib
+import json
 import os
 import socket
 import sys
@@ -50,7 +51,7 @@ def parse_command(command, conn):
         if command == 'get_rules':
             # get a list of all available check rules
             result = get_rules_names()
-            conn.sendall(str(result).encode())
+            send_message(conn, result)
         elif command == 'exit':
             logger.info(
                 "Exit command received. Shutting down server.")
@@ -61,22 +62,49 @@ def parse_command(command, conn):
             help_text += "get_rules         - get a list of all available check rules\n"
             help_text += "help              - get a list of all available commands\n"
             help_text += "exit              - exit the server\n"
-            conn.sendall(help_text.encode())
+            send_message(conn, help_text)
     elif command.startswith('check'):
         input = command[6:]
         # we are dealing with a file or path as input
         result = check_input(input)
-        logger.info(f"Returning result: {result}")
-        conn.sendall(str(result).encode())
+        send_message(conn, result)
     else:
-        logger.error(f"Unknown command {command}")
-        conn.sendall(Error_Codes.UNKNOWN_COMMAND.value.encode())
+        send_message(conn, Error_Codes.UNKNOWN_COMMAND.value)
+
+
+def send_message(conn: socket.socket, result):
+    try:
+        result = str(result)
+        # Convert the result to bytes
+        result_bytes = result.encode()
+        total_length = len(result_bytes)
+        # Prepare the header with fixed size, e.g., 10 bytes, representing the length
+        header = f"{total_length:<10}".encode()
+        # Send the header first
+        conn.sendall(header)
+        logger.info(f"Sent header with length: {total_length}")
+
+        # Now send the actual data
+        sent_length = 0
+        for i in range(0, total_length, 1024):
+            chunk = result_bytes[i:i+1024]
+            conn.sendall(chunk)
+            sent_length += len(chunk)
+            logger.info(f"Sent {sent_length} of {total_length} bytes")
+        logger.info(f"Result sent: {result}")
+    except (BrokenPipeError, ConnectionResetError) as e:
+        logger.error(f"Error occurred while sending data: {e}")
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
 
 
 def check_input(input):
     input_type = get_input_type(input)
     if input_type == InputType.UNSUPPORTED:
         return Error_Codes.FILE_NOT_VALID.value
+    elif input_type == InputType.DIRECTORY:
+        result: str = parse_directory(input)
+        return result
     result = []
     for ruleList in all_rules:
         if ruleList.type == input_type:
@@ -98,3 +126,15 @@ def check_input(input):
                 if process_result != True:
                     return f"Postcheck failed at rule \"{module.RULE_NAME}\"."
     return result
+
+
+def parse_directory(input):
+    # loop over all files and directories in the input directory
+    # no matter if we are dealing with a file or a directory, when we call check_input we will get a list of results
+    result_json = {}
+    for entry in os.listdir(input):
+        entry_path = os.path.join(input, entry)
+        result = check_input(entry_path)
+        result_json[entry_path] = result
+    result_json = json.dumps(result_json)
+    return result_json
