@@ -20,6 +20,8 @@ _supported_3d_extensions: List[str] = [
     'fbx', 'obj', 'gltf', 'glb', 'x3d', 'abc', 'dae', 'ply', 'stl', 'usd', 'blend']
 _supported_2d_extensions: List[str] = [
     'jpg', 'jpeg', 'png', 'tga', 'tif', 'tiff', 'bmp', 'exr', 'psd']
+_supported_audio_extensions: List[str] = [
+    'wav', 'aiff', 'mp3', 'ogg', 'flac', 'wma', 'aac']
 _custom_extensions: List[str] = []
 
 _all_rules: List[RuleList] = []
@@ -64,7 +66,7 @@ def get_rules(type: str) -> list[str]:
 
 def is_ignored(input: str) -> bool:
     is_input_ignored = ignore_parser.is_ignored(input)
-    logger.info(f"Checking if {input} is ignored: {is_input_ignored}")
+    # logger.info(f"Checking if {input} is ignored: {is_input_ignored}")
     return is_input_ignored
 
 
@@ -117,6 +119,8 @@ def __get_input_type(input):
             return InputType.FILE_3D
         elif file_extension in _supported_2d_extensions:
             return InputType.FILE_2D
+        elif file_extension in _supported_audio_extensions:
+            return InputType.FILE_AUDIO
         elif file_extension in _custom_extensions:
             return InputType.CUSTOM
         else:
