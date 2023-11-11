@@ -1,4 +1,5 @@
 # Import necessary modules
+import time
 import bpy
 import numpy as np
 from fastapi import FastAPI, Path
@@ -6,7 +7,6 @@ import uvicorn
 from rule_parser import create_rules, get_rule_types, get_rules, execute_rules_for_file, execute_rules_in_directory
 from utils.logger import logger
 
-create_rules()
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -53,7 +53,10 @@ async def check_dir(dir_path: str = Path(...)):
     Check the given directory against all rules for all files in the directory.
     """
     logger.info(f"Checking directory {dir_path}")
+    st = time.time()
     result = execute_rules_in_directory(dir_path)
+    es = time.time()
+    logger.info(f"Checked directory {dir_path} in {es-st} seconds")
     return result
 
 
@@ -68,4 +71,5 @@ def serve():
 
 
 if __name__ == "__main__":
+    create_rules()
     serve()

@@ -1,0 +1,52 @@
+# For a Unity project Assets folder
+*.meta
+*.unity
+*.asset
+*.controller
+*.mat
+*.prefab
+*.anim
+*.unitypackage
+*.renderTexture
+*.physicMaterial
+*.lighting
+*.hlsl
+*.shader
+*.shadergraph
+*.shadersubgraph
+*.cginc
+*.playable
+*.buildreport
+*.inputactions
+*.terrainlayer
+
+# common files
+*.xml
+*.txt
+*.json
+*.pdf
+
+# Code files
+*.cs
+*.asmdef
+*.cpp
+*.h
+*.dll
+*.so
+
+Build/
+BuildReport/
+Fonts/
+*.ttf
+
+# for godot project
+*.import
+*.gd
+
+.vscode
+.git
+
+*.sln
+*.csproj
+*.csproj.user
+*.user

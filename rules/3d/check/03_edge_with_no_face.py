@@ -23,4 +23,4 @@ def process(input):
         if errors:
             errors_json[obj.name] = errors
 
-    return errors_json if errors_json else {}
+    return errors_json if errors_json else True
