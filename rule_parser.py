@@ -7,6 +7,7 @@ from typing import List, Optional
 from error_codes import Error_Codes
 from rule_base import InputType, RuleList
 from utils.logger import logger
+from ignore_parser import IgnoreParser
 
 # region private variables
 
@@ -22,6 +23,8 @@ _supported_2d_extensions: List[str] = [
 _custom_extensions: List[str] = []
 
 _all_rules: List[RuleList] = []
+
+ignore_parser = IgnoreParser(os.path.join(_rules_base_path, ".ignore"))
 
 # endregion
 
@@ -59,7 +62,15 @@ def get_rules(type: str) -> list[str]:
     return rules
 
 
+def is_ignored(input: str) -> bool:
+    is_input_ignored = ignore_parser.is_ignored(input)
+    logger.info(f"Checking if {input} is ignored: {is_input_ignored}")
+    return is_input_ignored
+
+
 def execute_rules_for_file(input: str) -> list[str]:
+    if (is_ignored(input)):
+        return {"input": input, "error": Error_Codes.FILE_IGNORED.value}
     input_type = __get_input_type(input)
     if input_type == InputType.UNSUPPORTED:
         return {"input": input, "error": Error_Codes.FILE_NOT_VALID.value}
@@ -74,12 +85,16 @@ def execute_rules_for_file(input: str) -> list[str]:
 
 def execute_rules_in_directory(dir: str) -> list[str]:
     # list all files in the directory and run execute_rules on each file
+    ignore_parser.set_base_path(dir)
+
     result_json = {}
     result_json["input"] = dir
     files_array = []
     for root, dirs, files in os.walk(dir):
         for file in files:
             file_path = os.path.join(root, file)
+            if (is_ignored(file_path)):
+                continue
             result = execute_rules_for_file(file_path)
             if result != True:
                 files_array.append(result)
