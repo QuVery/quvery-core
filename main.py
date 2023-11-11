@@ -32,12 +32,12 @@ def get_rule_types_api():
 @app.get("/rules/{rule_type}")
 def get_rules_api(rule_type: str):
     """
-    Get a list of all available rules of the given type.
+    Get a list of all available rules of the given type. use the rule type from the rule_types endpoint.
     """
     return get_rules(rule_type)
 
 
-@app.get("/check/{file_path:path}")
+@app.get("/check/file/{file_path:path}")
 async def check_file(file_path: str = Path(...)):
     """
     Check the given file against all rules of file type.
@@ -47,7 +47,7 @@ async def check_file(file_path: str = Path(...)):
     return result
 
 
-@app.get("/check_dir/{dir_path:path}")
+@app.get("/check/dir/{dir_path:path}")
 async def check_dir(dir_path: str = Path(...)):
     """
     Check the given directory against all rules for all files in the directory.
