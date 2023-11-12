@@ -1,6 +1,7 @@
 # Import necessary modules
 import time
 import bpy
+import PIL
 import numpy as np
 from fastapi import FastAPI, Path
 import uvicorn
@@ -71,5 +72,6 @@ def serve():
 
 
 if __name__ == "__main__":
+    logger.info("Starting QuVery Core API")
     create_rules()
     serve()

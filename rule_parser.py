@@ -34,25 +34,35 @@ ignore_parser = IgnoreParser(os.path.join(_rules_base_path, ".ignore"))
 
 
 def create_rules() -> None:
+    logger.info("Creating rules...")
+
     rules_path: str = __get_rules_path()
 
     list2D: RuleList = __find_rules(os.path.join(
         rules_path, InputType.FILE_2D.value.lower()), InputType.FILE_2D)
+    logger.info(f"Loading 2D rules completed...")
     list3D: RuleList = __find_rules(os.path.join(
         rules_path, InputType.FILE_3D.value.lower()), InputType.FILE_3D)
+    logger.info(f"Loading 3D rules completed...")
     listAudio: RuleList = __find_rules(os.path.join(
         rules_path, InputType.FILE_AUDIO.value.lower()), InputType.FILE_AUDIO)
+    logger.info(f"Loading Audio rules completed...")
     listDir: RuleList = __find_rules(os.path.join(
         rules_path, InputType.DIRECTORY.value.lower()), InputType.DIRECTORY)
+    logger.info(f"Loading Directory rules completed...")
     listCustom: RuleList = __find_rules(os.path.join(
         rules_path, InputType.CUSTOM.value.lower()), InputType.CUSTOM)
+    logger.info(f"Loading Custom rules completed...")
 
     _all_rules.append(list2D)
     _all_rules.append(list3D)
     _all_rules.append(listAudio)
     _all_rules.append(listDir)
     _all_rules.append(listCustom)
+    logger.info("Finished Creating rules...")
+    logger.info("Loading custom extensions...")
     custom_extensions = __load_custom_extensions()
+    logger.info("Finished loading custom extensions...")
 
 
 def get_rules(type: str) -> list[str]:

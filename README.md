@@ -48,6 +48,8 @@ Embeded tools:
 | Blender API | bpy | [https://docs.blender.org/api/3.6/](https://docs.blender.org/api/3.6/) | For checking 3d models |
 | FastAPI | fastapi | [https://fastapi.tiangolo.com/](https://fastapi.tiangolo.com/) | For running the server and providing the endpoints |
 | PIL | PIL | [https://pillow.readthedocs.io/en/stable/](https://pillow.readthedocs.io/en/stable/) | For checking images |
+| OpenEXR | OpenEXR | [https://github.com/AcademySoftwareFoundation/openexr](https://github.com/AcademySoftwareFoundation/openexr) | For checking exr files |
+| pydub | pydub | [http://pydub.com/](http://pydub.com/) | For checking audio files |
 
 #### Rule Structure
 
