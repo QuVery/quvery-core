@@ -26,7 +26,7 @@ Some of the advantages of integrating QuVery into your CI/CD pipeline include:
 
 - **Consistency:** QuVery applies the same set of rules to every file it checks, helping to ensure consistency across different team members' work.
 
-## Remember, QuVery is not just a tool, it's a solution to streamline your workflow and maintain the quality of your projects.
+Remember, QuVery is not just a tool, it's a solution to streamline your workflow and maintain the quality of your projects.
 
 There are 2 parts for the whole QuVery project:
 
