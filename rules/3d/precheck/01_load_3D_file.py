@@ -9,6 +9,7 @@ RULE_NAME = "Load3DFile"
 
 def process(input):
     # delete all objects from the scene
+    bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete(use_global=False, confirm=False)
 
@@ -27,17 +28,19 @@ def process(input):
         # if the file is a blender file, we need to open it instead of importing it
         if (file_extension == blender_format):
             try:
-                print("Loading blender file: " + input)
+                # print("Loading blender file: " + input)
                 bpy.ops.wm.open_mainfile(filepath=input)
             except Exception as e:
                 import traceback
                 traceback.print_exc()
                 print(f"An error occurred: {e.__class__.__name__}, {e}")
         else:
-            print("Loading 3D file: " + input)
+            # print("Loading 3D file: " + input)
             # import the model file
             if (file_extension == 'glb'):
                 file_extension = 'gltf'
+            if (file_extension == 'dae'):
+                file_extension = 'collada'
             # replace the file extension with the import command
             if file_extension in default_3D_formats:
                 bpy.ops.import_scene.__getattribute__(

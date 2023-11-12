@@ -28,7 +28,7 @@ class IgnoreParser:
 
     def is_ignored(self, path: str) -> bool:
         relative_path = os.path.relpath(path, self.__base_path)
-        print(f"relative path: {relative_path}")
+        # print(f"relative path: {relative_path}")
         for pattern in self.__ignore_patterns:
             if fnmatch.fnmatch(path, pattern) or relative_path.startswith(pattern):
                 return True

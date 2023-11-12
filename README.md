@@ -69,6 +69,40 @@ Same as PreCheck but will be run after the Check rules.
 
 The API is a FastAPI server that will run on the local machine. You can check the endpoints at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) after running the core executable.
 
+### Creating new rules:
+
+Before creating a new rule, you need to know the structure of the rules.
+There are 5 predefined rule types: `2d`, `3d`, `audio`, `custom` and `dir`.
+
+To create a new rule, you need to create a new python file in the rules folder under the one if these subfolders: `2d`, `3d`, `audio`, `custom`, `dir` depending on the type of the rule you are creating. Then you need to fill the file with the following template:
+
+```
+# imports here
+
+# necessary for the rule to be loaded
+RULE_NAME = "{{rule_name}}"
+
+def process(input):
+    \"\"\"
+    This function is called for each file that is checked. The input is the file path.
+    the function should return True if the file is valid and a json object with the errors if the file is not valid.
+    example:
+    for a single error: {"file_path": "error message"}
+    for multiple errors: {"object_name1": "error message1", "object_name2": "error message2"}
+    \"\"\"
+
+    errors_json = {}
+
+    # Implement your rule here
+
+    if errors_json != {}:
+        return errors_json
+    else:
+        return True
+```
+
+You can check the existing rules for more info.
+
 ### Client
 
 The client can be anything that can send a request to the server. It can be a CLI or a GUI or even a web app. You can check the [QuVery-CLI](https://github.com/QuVery/quvery-cli) and a GUI version will be available soon.
