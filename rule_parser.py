@@ -85,7 +85,7 @@ def execute_rules_for_file(input: str) -> list[str]:
     return result_json
 
 
-def execute_rules_in_directory(dir: str) -> list[str]:
+def execute_rules_in_directory(dir: str, rule_type: Optional[str] = None) -> list[str]:
     # list all files in the directory and run execute_rules on each file
     ignore_parser.set_base_path(dir)
 
@@ -97,9 +97,15 @@ def execute_rules_in_directory(dir: str) -> list[str]:
             file_path = os.path.join(root, file)
             if (is_ignored(file_path)):
                 continue
+            file_rule_type = __get_input_type(file_path).value.lower()
+            if rule_type is not None and file_rule_type != rule_type:
+                continue
+            logger.info(f"Checking file {file_path}")
             result = execute_rules_for_file(file_path)
             if result != True:
                 files_array.append(result)
+                logger.info(
+                    f"Checked file {file_path} completed with some errors")
     result_json["files"] = files_array
     return result_json
 

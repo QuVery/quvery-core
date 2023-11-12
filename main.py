@@ -6,7 +6,7 @@ from fastapi import FastAPI, Path
 import uvicorn
 from rule_parser import create_rules, get_rule_types, get_rules, execute_rules_for_file, execute_rules_in_directory
 from utils.logger import logger
-
+from typing import Optional
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -48,13 +48,13 @@ async def check_file(file_path: str = Path(...)):
 
 
 @app.get("/check/dir/{dir_path:path}")
-async def check_dir(dir_path: str = Path(...)):
+async def check_dir(dir_path: str = Path(...), rule_type: Optional[str] = None):
     """
     Check the given directory against all rules for all files in the directory.
     """
     logger.info(f"Checking directory {dir_path}")
     st = time.time()
-    result = execute_rules_in_directory(dir_path)
+    result = execute_rules_in_directory(dir_path, rule_type)
     es = time.time()
     logger.info(f"Checked directory {dir_path} in {es-st} seconds")
     return result
