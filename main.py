@@ -22,6 +22,14 @@ app = FastAPI(
 )
 
 
+@app.get("/")
+def root():
+    """
+    Root endpoint.
+    """
+    return {"message": "live"}
+
+
 @app.get("/rule_types")
 def get_rule_types_api():
     """
