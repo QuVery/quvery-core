@@ -12,8 +12,6 @@ PyInstaller.__main__.run([
     '--collect-all',
     'PIL',
     '--collect-all',
-    'OpenEXR',
-    '--collect-all',
     'pydub',
     '--collect-all',
     'FastAPI',
