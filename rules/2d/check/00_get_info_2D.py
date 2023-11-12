@@ -1,7 +1,8 @@
 import math
 import os
 from PIL import Image
-import OpenEXR
+# import OpenEXR
+from utils.logger import logger
 
 RULE_NAME = "GetInfo2D"
 
@@ -20,12 +21,14 @@ def process(input):
         report_json["HEIGHT"] = height
     else:
         # use OpenEXR to get image dimensions if it is an exr file
-        exr = OpenEXR.InputFile(input)
-        dw = exr.header()['dataWindow']
-        width = dw.max.x - dw.min.x + 1
-        height = dw.max.y - dw.min.y + 1
-        report_json["WIDTH"] = width
-        report_json["HEIGHT"] = height
+        logger.info("EXR files are not supported yet.")
+        report_json["ERROR"] = "EXR files are not supported yet."
+        # exr = OpenEXR.InputFile(input)
+        # dw = exr.header()['dataWindow']
+        # width = dw.max.x - dw.min.x + 1
+        # height = dw.max.y - dw.min.y + 1
+        # report_json["WIDTH"] = width
+        # report_json["HEIGHT"] = height
     # get file size using os
     file_size = os.path.getsize(input)
     # convert file size to be pretty in KB, MB, GB, etc.
