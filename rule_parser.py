@@ -68,7 +68,7 @@ def create_rules() -> None:
 def get_rules(type: str) -> list[str]:
     # this will get all check rules only. not precheck or postcheck is included
     rules = {}
-    if (type == None):
+    if (type == None or type == ""):
         for ruleList in _all_rules:
             rules[ruleList.type.value.lower()] = ruleList.get_check_rules()
     else:
