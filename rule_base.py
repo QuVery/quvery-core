@@ -42,6 +42,12 @@ class RuleList:
             rules.append(module.RULE_NAME)
         return rules
 
+    def get_check_rules(self):
+        rules = []
+        for module in self._check_rules:
+            rules.append(module.RULE_NAME)
+        return rules
+
     def execute_rules(self, input):
         result_json = {}
         result_json["input"] = input

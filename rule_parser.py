@@ -66,11 +66,15 @@ def create_rules() -> None:
 
 
 def get_rules(type: str) -> list[str]:
-    # The command name is a variable called RULE_NAME in each module
-    rules = []
-    for ruleList in _all_rules:
-        if ruleList.type.value.lower() == type.lower():
-            rules = ruleList.get_rules()
+    # this will get all check rules only. not precheck or postcheck is included
+    rules = {}
+    if (type == None):
+        for ruleList in _all_rules:
+            rules[ruleList.type.value.lower()] = ruleList.get_check_rules()
+    else:
+        for ruleList in _all_rules:
+            if ruleList.type.value.lower() == type.lower():
+                rules[ruleList.type.value.lower()] = ruleList.get_check_rules()
     return rules
 
 

@@ -38,8 +38,8 @@ def get_rule_types_api():
     return get_rule_types()
 
 
-@app.get("/rules/{rule_type}")
-def get_rules_api(rule_type: str):
+@app.get("/rules")
+async def get_rules_api(rule_type: Optional[str] = None):
     """
     Get a list of all available rules of the given type. use the rule type from the rule_types endpoint.
     """
