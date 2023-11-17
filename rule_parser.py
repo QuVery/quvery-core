@@ -87,7 +87,7 @@ def is_ignored(input: str) -> bool:
 def execute_rules_for_file(input: str) -> list[str]:
     if (is_ignored(input)):
         return {"input": input, "error": Error_Codes.FILE_IGNORED.value}
-    input_type = __get_input_type(input)
+    input_type = get_input_type(input)
     if input_type == InputType.UNSUPPORTED:
         return {"input": input, "error": Error_Codes.FILE_NOT_VALID.value}
     result_json = {}
@@ -111,7 +111,7 @@ def execute_rules_in_directory(dir: str, rule_type: Optional[str] = None) -> lis
             file_path = os.path.join(root, file)
             if (is_ignored(file_path)):
                 continue
-            file_rule_type = __get_input_type(file_path).value.lower()
+            file_rule_type = get_input_type(file_path).value.lower()
             if rule_type is not None and file_rule_type != rule_type:
                 continue
             logger.info(f"Checking file {file_path}")
@@ -132,7 +132,7 @@ def get_rule_types() -> list[str]:
 # region private functions
 
 
-def __get_input_type(input):
+def get_input_type(input):
     if os.path.isfile(input):
         file_extension = input.split('.')[-1]
         if file_extension in _supported_3d_extensions:

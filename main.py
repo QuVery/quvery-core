@@ -5,7 +5,7 @@ import PIL
 import numpy as np
 from fastapi import FastAPI, Path
 import uvicorn
-from rule_parser import create_rules, get_rule_types, get_rules, execute_rules_for_file, execute_rules_in_directory
+from rule_parser import create_rules, get_rule_types, get_rules, execute_rules_for_file, execute_rules_in_directory, get_input_type
 from utils.logger import logger
 from typing import Optional
 
@@ -22,31 +22,39 @@ app = FastAPI(
 )
 
 
-@app.get("/")
-def root():
+@app.get("/live", tags=["Information"])
+def check_the_server_live_status():
     """
     Root endpoint.
     """
     return {"message": "live"}
 
 
-@app.get("/rule_types")
-def get_rule_types_api():
-    """
-    Get a list of all available rule types.
-    """
-    return get_rule_types()
+# @app.get("/rule_types")
+# def get_rule_types_api():
+#     """
+#     Get a list of all available rule types.
+#     """
+#     return get_rule_types()
 
 
-@app.get("/rules")
-async def get_rules_api(rule_type: Optional[str] = None):
+@app.get("/get_type/{file_path:path}", tags=["Information"])
+def get_the_type_of_given_file(file_path: str = Path(...)):
+    """
+    Get the type of the given file.
+    """
+    return get_input_type(file_path).value.lower()
+
+
+@app.get("/rules", tags=["Information"])
+async def get_all_available_rules_with_types(rule_type: Optional[str] = None):
     """
     Get a list of all available rules of the given type. use the rule type from the rule_types endpoint.
     """
     return get_rules(rule_type)
 
 
-@app.get("/check/file/{file_path:path}")
+@app.get("/check/file/{file_path:path}", tags=["Check"])
 async def check_file(file_path: str = Path(...)):
     """
     Check the given file against all rules of file type.
@@ -56,7 +64,7 @@ async def check_file(file_path: str = Path(...)):
     return result
 
 
-@app.get("/check/dir/{dir_path:path}")
+@app.get("/check/dir/{dir_path:path}", tags=["Check"])
 async def check_dir(dir_path: str = Path(...), rule_type: Optional[str] = None):
     """
     Check the given directory against all rules for all files in the directory.
