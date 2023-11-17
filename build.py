@@ -17,6 +17,7 @@ PyInstaller.__main__.run([
     'FastAPI',
     '-n',
     'quvery-core',
+    '--icon=icon.png',
     '-y',
     script_name
 ])
