@@ -5,7 +5,7 @@ from types import ModuleType
 from utils.logger import logger
 
 
-class InputType(Enum):
+class InputCategory(Enum):
     FILE_3D = "3D"
     FILE_2D = "2D"
     FILE_AUDIO = "AUDIO"
@@ -17,7 +17,7 @@ class InputType(Enum):
 
 
 class RuleList:
-    def __init__(self, type: InputType):
+    def __init__(self, type: InputCategory):
         self.type = type
         self._precheck_rules: list[ModuleType] = []
         self._check_rules: list[ModuleType] = []

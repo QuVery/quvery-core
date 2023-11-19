@@ -5,7 +5,7 @@ import PIL
 import numpy as np
 from fastapi import FastAPI, Path
 import uvicorn
-from rule_parser import create_rules, get_rule_types, get_rules, execute_rules_for_file, execute_rules_in_directory, get_input_type
+from rule_parser import create_rules, get_rule_types, get_rules, execute_rules_for_file, execute_rules_in_directory, get_input_category
 from utils.logger import logger
 from typing import Optional
 
@@ -38,12 +38,12 @@ def check_the_server_live_status():
 #     return get_rule_types()
 
 
-@app.get("/get_type/{file_path:path}", tags=["Information"])
-def get_the_type_of_given_file(file_path: str = Path(...)):
+@app.get("/get_category/{input_path:path}", tags=["Information"])
+def get_the_category_of_given_input(input_path: str = Path(...)):
     """
-    Get the type of the given file.
+    Get the category of the given input.
     """
-    return get_input_type(file_path).value.lower()
+    return get_input_category(input_path).value.lower()
 
 
 @app.get("/rules", tags=["Information"])

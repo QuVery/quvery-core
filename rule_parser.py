@@ -5,7 +5,7 @@ import sys
 from types import ModuleType
 from typing import List, Optional
 from error_codes import Error_Codes
-from rule_base import InputType, RuleList
+from rule_base import InputCategory, RuleList
 from utils.logger import logger
 from ignore_parser import IgnoreParser
 
@@ -39,19 +39,19 @@ def create_rules() -> None:
     rules_path: str = __get_rules_path()
 
     list2D: RuleList = __find_rules(os.path.join(
-        rules_path, InputType.FILE_2D.value.lower()), InputType.FILE_2D)
+        rules_path, InputCategory.FILE_2D.value.lower()), InputCategory.FILE_2D)
     logger.info(f"Loading 2D rules completed...")
     list3D: RuleList = __find_rules(os.path.join(
-        rules_path, InputType.FILE_3D.value.lower()), InputType.FILE_3D)
+        rules_path, InputCategory.FILE_3D.value.lower()), InputCategory.FILE_3D)
     logger.info(f"Loading 3D rules completed...")
     listAudio: RuleList = __find_rules(os.path.join(
-        rules_path, InputType.FILE_AUDIO.value.lower()), InputType.FILE_AUDIO)
+        rules_path, InputCategory.FILE_AUDIO.value.lower()), InputCategory.FILE_AUDIO)
     logger.info(f"Loading Audio rules completed...")
     listDir: RuleList = __find_rules(os.path.join(
-        rules_path, InputType.DIRECTORY.value.lower()), InputType.DIRECTORY)
+        rules_path, InputCategory.DIRECTORY.value.lower()), InputCategory.DIRECTORY)
     logger.info(f"Loading Directory rules completed...")
     listCustom: RuleList = __find_rules(os.path.join(
-        rules_path, InputType.CUSTOM.value.lower()), InputType.CUSTOM)
+        rules_path, InputCategory.CUSTOM.value.lower()), InputCategory.CUSTOM)
     logger.info(f"Loading Custom rules completed...")
 
     _all_rules.append(list2D)
@@ -87,8 +87,8 @@ def is_ignored(input: str) -> bool:
 def execute_rules_for_file(input: str) -> list[str]:
     if (is_ignored(input)):
         return {"input": input, "error": Error_Codes.FILE_IGNORED.value}
-    input_type = get_input_type(input)
-    if input_type == InputType.UNSUPPORTED:
+    input_type = get_input_category(input)
+    if input_type == InputCategory.UNSUPPORTED:
         return {"input": input, "error": Error_Codes.FILE_NOT_VALID.value}
     result_json = {}
     for ruleList in _all_rules:
@@ -111,7 +111,7 @@ def execute_rules_in_directory(dir: str, rule_type: Optional[str] = None) -> lis
             file_path = os.path.join(root, file)
             if (is_ignored(file_path)):
                 continue
-            file_rule_type = get_input_type(file_path).value.lower()
+            file_rule_type = get_input_category(file_path).value.lower()
             if rule_type is not None and file_rule_type != rule_type:
                 continue
             logger.info(f"Checking file {file_path}")
@@ -125,35 +125,35 @@ def execute_rules_in_directory(dir: str, rule_type: Optional[str] = None) -> lis
 
 
 def get_rule_types() -> list[str]:
-    return [input_type.value.lower() for input_type in InputType]
+    return [input_type.value.lower() for input_type in InputCategory]
 
 # endregion
 
 # region private functions
 
 
-def get_input_type(input):
+def get_input_category(input):
     if os.path.isfile(input):
         file_extension = input.split('.')[-1]
         if file_extension in _supported_3d_extensions:
-            return InputType.FILE_3D
+            return InputCategory.FILE_3D
         elif file_extension in _supported_2d_extensions:
-            return InputType.FILE_2D
+            return InputCategory.FILE_2D
         elif file_extension in _supported_audio_extensions:
-            return InputType.FILE_AUDIO
+            return InputCategory.FILE_AUDIO
         elif file_extension in _custom_extensions:
-            return InputType.CUSTOM
+            return InputCategory.CUSTOM
         else:
-            return InputType.UNSUPPORTED
+            return InputCategory.UNSUPPORTED
     elif os.path.isdir(input):
-        return InputType.DIRECTORY
+        return InputCategory.DIRECTORY
 
 
 def __load_custom_extensions() -> list[str]:
     _extensions: list[str] = []
     rules_path: str = __get_rules_path()
     custom_extensions_file_path: str = os.path.join(
-        rules_path, InputType.CUSTOM.value.lower(), "formats.json")
+        rules_path, InputCategory.CUSTOM.value.lower(), "formats.json")
     if os.path.isfile(custom_extensions_file_path):
         with open(custom_extensions_file_path, 'r') as file:
             # read contents of the file as json
@@ -165,7 +165,7 @@ def __load_custom_extensions() -> list[str]:
     return _extensions
 
 
-def __find_rules(path: str, input_type: InputType) -> None:
+def __find_rules(path: str, input_type: InputCategory) -> None:
     precheck_subdir_path: str = os.path.join(path, _precheck_subdir)
     check_subdir_path: str = os.path.join(path, _check_subdir)
     postcheck_subdir_path: str = os.path.join(path, _postcheck_subdir)

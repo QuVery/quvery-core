@@ -28,19 +28,18 @@ Some of the advantages of integrating QuVery into your CI/CD pipeline include:
 
 Remember, QuVery is not just a tool, it's a solution to streamline your workflow and maintain the quality of your projects.
 
-There are 2 parts for the whole QuVery project:
+### Quvery Core
 
-### Core
-
-The core part of the package runs a local server providing FastAPI endpoints for the client to send requests to. The server will then run the rules and return the result to the client.
+This is the heart of Quvery. It runs a local server providing FastAPI endpoints for clients to send requests to. The server will then run the rules and return the result to the client.
 Here are some of the available endpoints:
 
-| Endpoint                      | Method | Description                                                |
-| ----------------------------- | ------ | ---------------------------------------------------------- |
-| `/rule_types`                 | GET    | Get a list of all available rule types.                    |
-| `/rules/{rule_type}`          | GET    | Get a list of all available rules for the given rule type. |
-| `/check/file/{file_path}`     | GET    | Run all the rules on the given file path.                  |
-| `/check/dir/{directory_path}` | GET    | Run all the rules on the given directory path.             |
+| Endpoint                      | Method | Description                                        |
+| ----------------------------- | ------ | -------------------------------------------------- |
+| `/live`                       | GET    | Check the server live status                       |
+| `/get_category/{file_path}`   | GET    | Get the category of a given file (2d,3d,audio,..). |
+| `/rules`                      | GET    | Get all available rules.                           |
+| `/check/file/{file_path}`     | GET    | Run all the rules on the given file path.          |
+| `/check/dir/{directory_path}` | GET    | Run all the rules on the given directory path.     |
 
 Embeded tools:
 | Library | Alias | URL | Description |
@@ -48,7 +47,6 @@ Embeded tools:
 | Blender API | bpy | [https://docs.blender.org/api/3.6/](https://docs.blender.org/api/3.6/) | For checking 3d models |
 | FastAPI | fastapi | [https://fastapi.tiangolo.com/](https://fastapi.tiangolo.com/) | For running the server and providing the endpoints |
 | PIL | PIL | [https://pillow.readthedocs.io/en/stable/](https://pillow.readthedocs.io/en/stable/) | For checking images |
-| OpenEXR | OpenEXR | [https://github.com/AcademySoftwareFoundation/openexr](https://github.com/AcademySoftwareFoundation/openexr) | For checking exr files |
 | pydub | pydub | [http://pydub.com/](http://pydub.com/) | For checking audio files |
 
 #### Rule Structure
