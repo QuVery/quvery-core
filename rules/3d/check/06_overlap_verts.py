@@ -4,9 +4,10 @@ RULE_NAME = "OverlapVerts"
 
 
 def process(input):
+    result_json = {"status": "warning"}  # default status is error
+    details_json = {}
     all_objects = bpy.data.objects
     mesh_objects = [obj for obj in all_objects if obj.type == "MESH"]
-    errors_json = {}
     for obj in mesh_objects:
         mesh = obj.data
         vert_coords = [vert.co for vert in mesh.vertices]
@@ -16,10 +17,11 @@ def process(input):
         for i, coord in enumerate(vert_coords):
             coord_tuple = tuple(coord)
             if coord_tuple in unique_coords:
-                errors_json[obj.name] = f"Overlap vertices (Vertex Index: {i})"
+                details_json[obj.name] = f"Overlap vertices (Vertex Index: {i})"
             else:
                 unique_coords.add(coord_tuple)
-    if errors_json != {}:
-        return errors_json
+    if details_json != {}:
+        result_json["details"] = details_json
+        return result_json
     else:
-        return True
+        return {}

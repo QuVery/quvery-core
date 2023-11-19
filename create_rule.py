@@ -12,20 +12,25 @@ RULE_NAME = "{{rule_name}}"
 def process(input):
     \"\"\"
     This function is called for each file that is checked. The input is the file path.
-    the function should return True if the file is valid and a json object with the errors if the file is not valid.
+    the function should return an empty json if the file is valid and a json object with the status and required information.
+    status can be one of the following: "error", "warning", "info"
     example: 
-    for a single error: {"file_path": "error message"}
-    for multiple errors: {"object_name1": "error message1", "object_name2": "error message2"}
+    for a single error: {"status": "error" , "details": {"object_name": "error message"}}
+    for multiple errors: {"status": "error" , "details": {"object_name": "error message", "object_name2": "error message2"}}
+    for a single warning: {"status": "warning" , "details": {"object_name": "warning message"}}
+    for info: {"status": "info" , "details": {"object_name": "info message"}}
     \"\"\"
 
-    errors_json = {}
+    result_json = {"status": "info"} # default status is info
+    details_json = {}
 
-    # Implement your rule here
+    # Implement your rule here and fill the details_json with the appropriate information or errors or leave it empty if there are no errors or warnings
 
-    if errors_json != {}:
-        return errors_json
+    if details_json != {}:
+        result_json["details"] = details_json
+        return result_json
     else:
-        return True
+        return {}
 """
 
 

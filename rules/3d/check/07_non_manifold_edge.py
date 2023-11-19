@@ -4,9 +4,10 @@ RULE_NAME = "NonManifoldEdge"
 
 
 def process(input):
+    result_json = {"status": "error"}  # default status is error
+    details_json = {}
     all_objects = bpy.data.objects
     mesh_objects = [obj for obj in all_objects if obj.type == "MESH"]
-    errors_json = {}
     for obj in mesh_objects:
         mesh = obj.data
         edge_face_count = [0] * len(mesh.edges)
@@ -19,8 +20,9 @@ def process(input):
         # Check if any edge has more than 2 linked faces (non-manifold)
         for i, count in enumerate(edge_face_count):
             if count > 2:
-                errors_json[obj.name] = f"Non-manifold edge (Edge Index: {i})"
-    if errors_json != {}:
-        return errors_json
+                details_json[obj.name] = f"Non-manifold edge (Edge Index: {i})"
+    if details_json != {}:
+        result_json["details"] = details_json
+        return result_json
     else:
-        return True
+        return {}

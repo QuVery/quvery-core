@@ -8,6 +8,8 @@ RULE_NAME = "Load3DFile"
 
 
 def process(input):
+    result_json = {"status": "error"}  # default status is error
+    details_json = {}
     # delete all objects from the scene
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.object.select_all(action='SELECT')
@@ -34,6 +36,9 @@ def process(input):
                 import traceback
                 traceback.print_exc()
                 print(f"An error occurred: {e.__class__.__name__}, {e}")
+                details_json["error"] = f"An error occurred: {e.__class__.__name__}, {e}"
+                result_json["details"] = details_json
+                return result_json
         else:
             # print("Loading 3D file: " + input)
             # import the model file
@@ -48,14 +53,16 @@ def process(input):
             elif file_extension in wm_3D_formats:
                 bpy.ops.wm.__getattribute__(
                     file_extension + '_import')(filepath=input)
-        return True
+        return {}
     # elif file_extension in image_formats:
     #     # file is an image
     #     # import the image file
     #     bpy.ops.image.open(filepath=input)
     #     return True
     else:
-        # file is not a 3D model or an image
+        # file is not supported
         print(
             f"LoadFile: file {input} is not supported as a 3D model.")
-        return (RULE_NAME, f"File {input} is not supported as a 3D model.")
+        details_json["error"] = f"File {input} is not supported as a 3D model."
+        result_json["details"] = details_json
+        return result_json

@@ -55,12 +55,12 @@ class RuleList:
         for module in self._precheck_rules:
             logger.info(f"Processing rule {module.RULE_NAME}")
             process_result = module.process(input)
-            if process_result != True:
+            if process_result != {}:
                 return f"Precheck failed at rule \"{module.RULE_NAME}\"."
         for module in self._check_rules:
             logger.info(f"Processing rule {module.RULE_NAME}")
             process_result = module.process(input)
-            if process_result != True:
+            if process_result != {}:
                 rules_json[module.RULE_NAME] = process_result
                 # json_result = {}
                 # json_result[module.RULE_NAME] = process_result
@@ -68,7 +68,7 @@ class RuleList:
         for module in self._postcheck_rules:
             logger.info(f"Processing rule {module.RULE_NAME}")
             process_result = module.process(input)
-            if process_result != True:
+            if process_result != {}:
                 return f"Postcheck failed at rule \"{module.RULE_NAME}\"."
         result_json["rules"] = rules_json
         return result_json

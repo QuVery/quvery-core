@@ -94,7 +94,7 @@ def execute_rules_for_file(input: str) -> list[str]:
     for ruleList in _all_rules:
         if ruleList.type == input_type:
             result = ruleList.execute_rules(input)
-            if result != True:
+            if result != {}:
                 result_json = result
     return result_json
 
@@ -116,7 +116,7 @@ def execute_rules_in_directory(dir: str, rule_type: Optional[str] = None) -> lis
                 continue
             logger.info(f"Checking file {file_path}")
             result = execute_rules_for_file(file_path)
-            if result != True:
+            if result != {}:
                 files_array.append(result)
                 logger.info(
                     f"Checked file {file_path} completed with some errors")
