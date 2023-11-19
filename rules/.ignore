@@ -42,7 +42,12 @@ Fonts/
 # for godot project
 *.import
 *.gd
+*.editorconfig
+*.sh
+*.godot
 
+
+*.md
 .vscode
 .git
 
