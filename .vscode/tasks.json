@@ -4,10 +4,16 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "& '${workspaceFolder}/.venv/Scripts/Activate.ps1'; python build.py",
+            "command": "python build.py",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
+            },
+            "windows": {
+                "command": "& '${workspaceFolder}/.venv/Scripts/Activate.ps1'; python build.py"
+            },
+            "osx": {
+                "command": "source '${workspaceFolder}/.venv/bin/activate'; python build.py"
             }
         }
     ]
