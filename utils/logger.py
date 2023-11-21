@@ -1,4 +1,6 @@
 import logging
+from logging.handlers import RotatingFileHandler
+
 
 # Configure logger
 logger = logging.getLogger('quvery_logger')
@@ -8,8 +10,9 @@ logger.setLevel(logging.INFO)
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 
-# Create file handler and set level to debug
-file_handler = logging.FileHandler('quvery-core.log')
+# Create rotating file handler
+file_handler = RotatingFileHandler(
+    'quvery-core.log', maxBytes=1048576, backupCount=1)  # 1 MB per file, keep 1 backups
 file_handler.setLevel(logging.INFO)
 
 # Create formatter
