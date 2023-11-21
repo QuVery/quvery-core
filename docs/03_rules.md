@@ -8,7 +8,7 @@ These rules will be run before the Check rules and will be used for things like 
 
 ##### Check
 
-These rules will be run after all precheck rules and will be used for checking the file. They will return True if no error has been occured, otherwise they will return a json containing the error message. Check the exsisting rules for more info.s
+These rules will be run after all precheck rules and will be used for checking the file. They will return an empty array {} if no error has been occured, otherwise they will return a json containing the error message. Check the exsisting rules for more info.s
 
 ##### PostCheck
 
@@ -17,9 +17,11 @@ Same as PreCheck but will be run after the Check rules.
 ### Creating new rules:
 
 Before creating a new rule, you need to know the structure of the rules.
-There are 5 predefined rule types: `2d`, `3d`, `audio`, `custom` and `dir`.
+There are 5 predefined rule categories: `2d`, `3d`, `audio`, `custom` and `dir`.
 
-To create a new rule, you need to create a new python file in the rules folder under the one if these subfolders: `2d`, `3d`, `audio`, `custom`, `dir` depending on the type of the rule you are creating. Then you need to fill the file with the following template:
+To create a new rule, you need to create a new python file in the rules folder under the one if these subfolders: `2d`, `3d`, `audio`, `custom`, `dir` depending on the type of the rule you are creating. Then you can fill the file with the following template:
+
+A rule can also return a link to a page containing more information about the rule. To do so, you need to add a `link` key to the returned json object. The value of the key should be the link to the page. this is useful if the client wants to know more about what caused the error and how to fix it.
 
 ```python
 # imports here
@@ -33,10 +35,14 @@ def process(input):
     the function should return an empty json if the file is valid and a json object with the status and required information.
     status can be one of the following: "error", "warning", "info"
     example:
-    for a single error: {"status": "error" , "details": {"object_name": "error message"}}
-    for multiple errors: {"status": "error" , "details": {"object_name": "error message", "object_name2": "error message2"}}
-    for a single warning: {"status": "warning" , "details": {"object_name": "warning message"}}
-    for info: {"status": "info" , "details": {"object_name": "info message"}}
+    for a single error with link:
+    {"status": "error" , "details": {"object_name": "error message"}, "link": "https://example.com"}
+    for multiple errors:
+    {"status": "error" , "details": {"object_name": "error message", "object_name2": "error message2"}}
+    for a single warning:
+    {"status": "warning" , "details": {"object_name": "warning message"}}
+    for info:
+    {"status": "info" , "details": {"object_name": "info message"}}
     """
 
     result_json = {"status": "info"} # default status is info

@@ -5,6 +5,7 @@ RULE_NAME = "OverlapVerts"
 
 def process(input):
     result_json = {"status": "warning"}  # default status is error
+    result_json["link"] = "https://github.com/QuVery/GameDevTechStandards/blob/main/Book/3D/ModelingTips.md#overlapping-vertices"
     details_json = {}
     all_objects = bpy.data.objects
     mesh_objects = [obj for obj in all_objects if obj.type == "MESH"]

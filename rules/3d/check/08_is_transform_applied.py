@@ -19,6 +19,7 @@ def process(input):
     """
 
     result_json = {"status": "error"}  # default status is info
+    result_json["link"] = "https://github.com/QuVery/GameDevTechStandards/blob/main/Book/3D/ModelingTips.md#applied-transforms"
     details_json = {}
 
     # Implement your rule here and fill the details_json with the appropriate information or errors or leave it empty if there are no errors or warnings

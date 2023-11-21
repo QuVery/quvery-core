@@ -10,6 +10,7 @@ def process(input):
     status can be one of the following: "error", "warning", "info"
     """
     result_json = {"status": "warning"}  # default status is info
+    result_json["link"] = "https://github.com/QuVery/GameDevTechStandards/blob/main/Book/3D/ModelingTips.md#meshes-with-no-geometry"
     details_json = {}
     all_objects = bpy.data.objects
     mesh_objects = [obj for obj in all_objects if obj.type == "MESH"]

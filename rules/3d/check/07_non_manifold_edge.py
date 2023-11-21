@@ -5,6 +5,7 @@ RULE_NAME = "NonManifoldEdge"
 
 def process(input):
     result_json = {"status": "error"}  # default status is error
+    result_json["link"] = "https://github.com/QuVery/GameDevTechStandards/blob/main/Book/3D/ModelingTips.md#non-manifold-geometry"
     details_json = {}
     all_objects = bpy.data.objects
     mesh_objects = [obj for obj in all_objects if obj.type == "MESH"]
