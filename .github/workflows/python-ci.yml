@@ -34,7 +34,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: 'D:\w\QuVery\Source\Quvery-Core\build'
+          # build directory is the current working directory + dist
+          files: dist/*
           tag_name: ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
