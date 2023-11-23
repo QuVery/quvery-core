@@ -33,11 +33,9 @@ jobs:
         run: |
           python build.py
       - name: Create Release
-        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          # build directory is the current working directory + dist
-          files: dist/*
+          files: ${{ github.workspace }}/dist/*
           tag_name: ${{ github.ref }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
