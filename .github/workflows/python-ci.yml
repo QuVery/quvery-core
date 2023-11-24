@@ -31,12 +31,4 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       - name: Build
         run: |
-          pwd
           python build.py
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ${{ github.workspace }}\dist\*
-          tag_name: ${{ github.ref }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
