@@ -1,5 +1,6 @@
 
 # imports here
+import math
 import bpy
 
 # necessary for the rule to be loaded
@@ -26,9 +27,9 @@ def process(input):
     for obj in bpy.data.objects:
         if obj.type == 'MESH':
             # Check if the scale and rotation are applied
-            if obj.scale != (1, 1, 1):
+            if not all(math.isclose(i, 1, abs_tol=1e-9) for i in obj.scale):
                 details_json[obj.name] = "Scale is not applied"
-            if obj.rotation_euler != (0, 0, 0):
+            if not all(math.isclose(i, 0, abs_tol=1e-9) for i in obj.rotation_euler):
                 details_json[obj.name] = "Rotation is not applied"
 
     if details_json != {}:
