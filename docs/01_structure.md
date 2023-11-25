@@ -27,8 +27,10 @@ graph LR
     CICD <--> API
     UserRules -.-> RulesEngine
 
-    classDef green fill:#9f6,stroke:#333,stroke-width:2px;
-    classDef orange fill:#f96,stroke:#333,stroke-width:4px;
+    Core:::roundSubgraph
+    Clients:::roundSubgraph
+
+    classDef roundSubgraph rx:20,ry:20
 ```
 
 Description of the graph:
