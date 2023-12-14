@@ -53,12 +53,17 @@ def create_rules() -> None:
     listCustom: RuleList = __find_rules(os.path.join(
         rules_path, InputCategory.CUSTOM.value.lower()), InputCategory.CUSTOM)
     logger.info(f"Loading Custom rules completed...")
+    listGeneric: RuleList = __find_rules(os.path.join(
+        rules_path, InputCategory.GENERIC.value.lower()), InputCategory.GENERIC)
+    
 
     _all_rules.append(list2D)
     _all_rules.append(list3D)
     _all_rules.append(listAudio)
     _all_rules.append(listDir)
     _all_rules.append(listCustom)
+    _all_rules.append(listGeneric)
+
     logger.info("Finished Creating rules...")
     logger.info("Loading custom extensions...")
     custom_extensions = __load_custom_extensions()
@@ -73,7 +78,7 @@ def get_rules(type: str) -> list[str]:
             rules[ruleList.type.value.lower()] = ruleList.get_check_rules()
     else:
         for ruleList in _all_rules:
-            if ruleList.type.value.lower() == type.lower():
+            if ruleList.type.value.lower() == type.lower() or ruleList.type.value.lower() == InputCategory.GENERIC.value.lower():
                 rules[ruleList.type.value.lower()] = ruleList.get_check_rules()
     return rules
 
@@ -85,17 +90,24 @@ def is_ignored(input: str) -> bool:
 
 
 def execute_rules_for_file(input: str) -> list[str]:
+    result_json = {}
+    result_json["input"] = input
+    rules_json = {}
     if (is_ignored(input)):
-        return {"input": input, "error": Error_Codes.FILE_IGNORED.value}
+        result_json["error"] = Error_Codes.FILE_IGNORED.value
+        return result_json
     input_type = get_input_category(input)
     if input_type == InputCategory.UNSUPPORTED:
-        return {"input": input, "error": Error_Codes.FILE_NOT_VALID.value}
-    result_json = {}
+        result_json["error"] = Error_Codes.FILE_NOT_VALID.value
+        return result_json
     for ruleList in _all_rules:
-        if ruleList.type == input_type:
+        if ruleList.type == input_type or ruleList.type == InputCategory.GENERIC:
             result = ruleList.execute_rules(input)
             if result != {}:
-                result_json = result
+                # append the result dictionary to the rules_json dictionary
+                rules_json.update(result)
+
+    result_json["rules"] = rules_json
     return result_json
 
 
