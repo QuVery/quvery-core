@@ -18,6 +18,7 @@ Same as PreCheck but will be run after the Check rules.
 
 Before creating a new rule, you need to know the structure of the rules.
 There are 5 predefined rule categories: `2d`, `3d`, `audio`, `custom` and `dir`.
+There is also a directory called ‌`generic` which contains the generic rules that are used for all categories.
 
 To create a new rule, you need to create a new python file in the rules folder under the one if these subfolders: `2d`, `3d`, `audio`, `custom`, `dir` depending on the type of the rule you are creating. Then you can fill the file with the following template:
 
