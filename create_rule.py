@@ -46,9 +46,10 @@ def parse_args():
                                         "2d",
                                         "audio",
                                         "dir",
-                                        "custom"]:
+                                        "custom",
+                                        "generic"]:
         raise ValueError(
-            "Rule type must be one of the following: 3d, 2d, audio, dir, custom")
+            "Rule type must be one of the following: 3d, 2d, audio, dir, custom or generic")
     parsed_args['rule_name'] = args[1]
     return parsed_args
 

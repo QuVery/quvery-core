@@ -11,6 +11,7 @@ class InputCategory(Enum):
     FILE_AUDIO = "AUDIO"
     DIRECTORY = "DIR"
     CUSTOM = "CUSTOM"
+    GENERIC = "GENERIC"
     UNSUPPORTED = "UNSUPPORTED"
 
 # an abstract class for rules to inherit from
@@ -49,8 +50,6 @@ class RuleList:
         return rules
 
     def execute_rules(self, input):
-        result_json = {}
-        result_json["input"] = input
         rules_json = {}
         for module in self._precheck_rules:
             logger.info(f"Processing rule {module.RULE_NAME}")
@@ -70,5 +69,5 @@ class RuleList:
             process_result = module.process(input)
             if process_result != {}:
                 return f"Postcheck failed at rule \"{module.RULE_NAME}\"."
-        result_json["rules"] = rules_json
-        return result_json
+        # result_json["rules"] = rules_json
+        return rules_json
