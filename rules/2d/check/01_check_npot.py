@@ -1,4 +1,5 @@
 # imports here
+import os
 import PIL.Image as Image
 # necessary for the rule to be loaded
 RULE_NAME = "Check NPOT"
@@ -23,6 +24,14 @@ def process(input):
     # Check if the file dimensions are power of two
     # If not, return an error
     # If yes, return an empty json
+    
+    # Get the file extension
+    _, ext = os.path.splitext(input)
+
+    # Skip if the file is an EXR file
+    if ext.lower() == '.exr':
+        return {}
+    
     img = Image.open(input)
     width, height = img.size
     if width & (width - 1) != 0 or height & (height - 1) != 0:
