@@ -22,10 +22,10 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10.11"
 
@@ -43,16 +43,16 @@ jobs:
           mkdir releases
           cd dist
           Compress-Archive -Path * -DestinationPath ../releases/${{ runner.os }}-build.zip
-      
+
       - name: Zip everything inside dist for macos and linux
         if: ${{ runner.os != 'Windows' }}
         run: |
           mkdir releases
           cd dist
           zip -r ../releases/${{ runner.os }}-build.zip *
-        
+
       - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-build
           path: releases/${{ runner.os }}-build.zip
@@ -60,9 +60,9 @@ jobs:
   publish-release:
     needs: build
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -78,14 +78,14 @@ jobs:
         run: git tag ${{ steps.semver.outputs.version }}
 
       - name: Push tag
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@v0.8.0
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
           tags: true
 
       - name: Download All Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: releases/
 
@@ -93,7 +93,7 @@ jobs:
         run: ls -R ./
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.semver.outputs.version }}
           draft: false
@@ -104,7 +104,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cleanup Artifacts
-        uses: geekyeggo/delete-artifact@v2
+        uses: geekyeggo/delete-artifact@v3
         with:
           name: |
             Windows-build
