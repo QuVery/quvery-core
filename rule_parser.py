@@ -144,8 +144,11 @@ def execute_rules_for_file(input: str) -> list[str]:
     for ruleList in _all_rules:
         if ruleList.type == input_type or ruleList.type == InputCategory.GENERIC:
             result = ruleList.execute_rules(input)
-            if result != {}:
-                # append the result dictionary to the rules_json dictionary
+            # Check if result is an error message (string)
+            if isinstance(result, str):
+                result_json["error"] = result
+                return result_json  # Return immediately on error
+            elif result:  # Only update if result is non-empty dict
                 rules_json.update(result)
 
     result_json["rules"] = rules_json

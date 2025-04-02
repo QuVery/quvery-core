@@ -5,7 +5,14 @@ import PIL
 import numpy as np
 from fastapi import FastAPI, Path
 import uvicorn
-from rule_parser import create_rules, get_rule_types, get_rules, execute_rules_for_file, execute_rules_in_directory, get_input_category
+from rule_parser import (
+    create_rules,
+    get_rule_types,
+    get_rules,
+    execute_rules_for_file,
+    execute_rules_in_directory,
+    get_input_category,
+)
 from utils.logger import logger
 from typing import Optional
 
@@ -18,7 +25,7 @@ app = FastAPI(
         name="Omid Saadat",
         url="https://www.omid-saadat.com",
         email="info@omid-saadat.com",
-    )
+    ),
 )
 
 
@@ -43,6 +50,7 @@ def get_the_category_of_given_input(input_path: str = Path(...)):
     """
     Get the category of the given input.
     """
+    logger.info(f"Getting category for input {input_path}")
     return get_input_category(input_path).value.lower()
 
 
@@ -81,8 +89,7 @@ def serve():
     """
     Serve the web application.
     """
-    config = uvicorn.Config(
-        app=app, port=8000, host="127.0.0.1", log_level="info")
+    config = uvicorn.Config(app=app, port=8000, host="127.0.0.1", log_level="info")
     server = uvicorn.Server(config)
     server.run()
 
