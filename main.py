@@ -4,6 +4,7 @@ import bpy
 import PIL
 import numpy as np
 from fastapi import FastAPI, Path
+from fastapi.middleware.cors import CORSMiddleware  # Added import
 import uvicorn
 from rule_parser import (
     create_rules,
@@ -26,6 +27,15 @@ app = FastAPI(
         url="https://www.omid-saadat.com",
         email="info@omid-saadat.com",
     ),
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows requests from all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, OPTIONS, etc.)
+    allow_headers=["*"],  # Allows all headers
 )
 
 
