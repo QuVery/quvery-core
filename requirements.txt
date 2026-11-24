@@ -3,7 +3,7 @@ annotated-types==0.6.0
 anyio==4.14.2
 attrs==23.1.0
 bpy
-bracex==2.4
+bracex==3.2.4
 build==1.2.2.post1
 certifi
 charset-normalizer==3.3.2
@@ -45,6 +45,6 @@ typing_extensions
 urllib3
 uvicorn==0.24.0.post1
 watchfiles==0.21.0
-wcmatch==8.5
+wcmatch==11.2
 websockets==12.0
 zstandard==0.22.0
